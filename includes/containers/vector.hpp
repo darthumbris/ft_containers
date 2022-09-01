@@ -293,12 +293,20 @@ namespace ft
 	};
 };
 
-template <class T, class Allocator> bool operator==(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs);
-template <class T, class Allocator> bool operator!=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs);
-template <class T, class Allocator> bool operator< (const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs);
-template <class T, class Allocator> bool operator<=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs);
-template <class T, class Allocator> bool operator> (const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs);
-template <class T, class Allocator> bool operator>=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs);
+template <class T, class Allocator> bool operator==(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) //done
+{
+	if (lhs._size != rhs._size)
+		return false;
+	return (ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
+}
+template <class T, class Allocator> bool operator!=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return !(lhs == rhs);} //done
+template <class T, class Allocator> bool operator< (const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) //done
+{
+	return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+}
+template <class T, class Allocator> bool operator<=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return (!(rhs < lhs);)} //done
+template <class T, class Allocator> bool operator> (const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return (rhs < lhs);} //done
+template <class T, class Allocator> bool operator>=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return (!(lhs < rhs));} //done
 
 
 #endif

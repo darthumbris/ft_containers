@@ -51,14 +51,20 @@ namespace ft
 
 	public:
 
-		explicit				vector(const allocator_type& alloc = allocator_type()) : _array(NULL), _alloc(alloc), _alloc_size(0), _size(0) {} // default    //done
-		explicit				vector(size_type count, const T& value = T(), const Allocator& alloc = Allocator()) : _array(NULL), _alloc(alloc), _alloc_size(count), _size(count) // fill //done
+		explicit				vector(const allocator_type& alloc = allocator_type())
+									: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0) {} // default    //done
+
+		explicit				vector(size_type count, const T& value = T(), const Allocator& alloc = Allocator())
+									: _array(NULL), _alloc(alloc), _alloc_size(count), _size(count) // fill //done
 								{
 									_alloc.allocate(_alloc_size);
 									for (size_type i = 0; i < _size; i++)
 										_alloc.construct(_array[i], value);
 								}
-		template <class Input>	vector(Input first, Input last, const Allocator& alloc = Allocator()) : _array(NULL), _alloc(alloc), _alloc_size(0), _size(0) // range //done
+
+		template <class InputIt>	vector(InputIt first, InputIt last, const Allocator& alloc = Allocator(),
+									typename ft::enable_if<!ft::is_integral<InputIt>::value, bool>::type = true)
+									: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0) // range //done
 								{
 									size_type	size;
 									for (Input it = first; it != last; it++, size++);
@@ -69,7 +75,8 @@ namespace ft
 									for (Input it = first; it != last; it++, i++)
 										_alloc.construct(&_array[i], *it);
 								}
-								vector(const vector& other) {*this = other;} // copy
+
+								vector(const vector& other) {*this = other;} // copy //done
 		
 								~vector() //done
 								{
@@ -81,9 +88,20 @@ namespace ft
 								}
 
 		template <class InputIt>
-		typename ft::enable_if<>::type
-		void 					assign(InputIt first, InputIt last) {}
-		void 					assign(size_type count, const T& value) {}
+		typename ft::enable_if<!ft::is_integral<InputIt>::value,void>::type assign(InputIt first, InputIt last) //done
+		{
+			clear();
+			increaseAllocSize(std::distance(first, last));
+			for (iterator it = first; it != last; it++)
+				push_back(*it);
+		} //done
+		void 					assign(size_type count, const T& value) //done
+		{
+			clear();
+			increaseAllocSize(count);
+			for (size_t i = 0; i < count; i++)
+				push_back(value);
+		}
 		allocator_type			get_allocator() const {return _alloc;} //done
 		vector& 				operator=(const vector& other) //done
 								{
@@ -150,17 +168,82 @@ namespace ft
 		
 		// Modifiers
 		template <class InputIt>
-		void					insert(iterator pos, InputIt first, InputIt last);
-		iterator				insert(iterator pos, const T& value);
-		void					insert(iterator pos, size_type count, const T& value);
+		typename ft::enable_if<!ft::is_integral<InputIt>::value,void>::type
+								insert(iterator pos, InputIt first, InputIt last) //done
+		{
+			for (iterator it = first; it != last; it++)
+			{
+				pos = insert(pos, *it);
+				pos++;
+			}
+		}
+		iterator				insert(iterator pos, const T& value) //done
+		{
+			size_t start_pos = pos - begin();
+			if (start_pos == end())
+				push_back(value);
+			else
+			{
+				value_type temp_val = val;
+				int cur_pos = pos - begin();
+				if (_size == _alloc_size)
+				{
+					if (_alloc_size == 0)
+						increaseAllocSize(1);
+					else
+						increaseAllocSize(_alloc_size * 2);
+					pos = begin() + cur_pos;
+				}
+				while(pos <= end()) //this moves every value after pos if pos is not at the end.
+				{
+					value_type temp = _array[cur_pos];
+					_alloc.destroy(&_array[cur_pos]);
+					_alloc.construct(&_array[cur_pos], temp_val);
+					temp_val = temp;
+					pos++;
+					cur_pos++;
+				}
+				_size++;
+			}
+			return (begin() + start_pos);
+		}
+		void					insert(iterator pos, size_type count, const T& value) //done
+		{
+			for (size_t i = 0; i < count; i++)
+				insert(pos + i, value);
+		}
 		void					clear() //done
 		{
 			for (std::size_t i = 0; i < _size; i++)
 				_alloc.destroy(&_array[i]);
 			_size = 0;
 		}
-		iterator				erase(iterator pos);
-		iterator				erase(iterator first, iterator last);
+		iterator				erase(iterator pos) //done
+		{
+			size_t start_pos = pos - begin();
+			if (start_pos == end())
+				pop_back();
+			else
+			{
+				int cur_pos = pos - begin();
+				while(pos <= end()) //this moves every value after pos if pos is not at the end.
+				{
+					value_type temp = _array[cur_pos + 1];
+					_alloc.destroy(&_array[cur_pos]);
+					_alloc.construct(&_array[cur_pos], temp);
+					pos++;
+					cur_pos++;
+				}
+				_size--;
+			}
+			return (start_pos);
+		}
+		iterator				erase(iterator first, iterator last) //done
+		{
+			for (iterator it = first; it != last; it++)
+				erase(it);
+			return it;
+		}
 		void					push_back(const T& value) //done
 		{
 			if (_size == _alloc_size)
@@ -168,10 +251,45 @@ namespace ft
 			_alloc.construct(&_array[_size], value);
 			_size++;
 		}
-		void					pop_back();
-		void					resize(size_type count, T value = T());
-		void					swap(vector& other);
+		void					pop_back() //done
+		{
+			_alloc.destroy(&_array[_size]);
+			if (_size > 0)
+				size--;
+		}
+		void					resize(size_type count, T value = T()) //done
+		{
+			if (count < _size)
+			{
+				for (size_t i = count; i < _size; i++)
+					_alloc.destroy(&_array[i]);
+			}
+			else
+			{
+				if (count > _alloc_size)
+					increaseAllocSize(count);
+				for (size_t i = _size; i < count; i++)
+					_alloc.construct(&_array[i], value);
+			}
+			_size = count;
+		}
+		void					swap(vector& other) //done
+		{
+			value_type*		temp_array = _array;
+			allocator_type	temp_alloc = _alloc;
+			size_type		temp_alloc_size = _alloc_size;
+			size_type		temp_size = _size;
 
+			_array = other._array;
+			_alloc = other._alloc;
+			_alloc_size = other._alloc_size;
+			_size = other._size;
+
+			other._array = temp_array;
+			other._alloc = temp_alloc;
+			other._alloc_size = temp_alloc_size;
+			other._size = temp_size;
+		}
 	};
 };
 

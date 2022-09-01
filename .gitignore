@@ -1,2 +1,5 @@
 .DS_Store
-.o
+*.o
+.vscode
+*.swap
+ft_containers

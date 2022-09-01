@@ -308,5 +308,7 @@ template <class T, class Allocator> bool operator<=(const ft::vector<T,Allocator
 template <class T, class Allocator> bool operator> (const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return (rhs < lhs);} //done
 template <class T, class Allocator> bool operator>=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return (!(lhs < rhs));} //done
 
+template <class T, class Allocator>
+void swap(std::vector<T, Allocator>& lhs, std::vector<T,Allocator>& rhs ) {lhs.swap(rhs);} //done
 
 #endif

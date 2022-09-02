@@ -13,7 +13,7 @@ namespace ft
 	class vector
 	{		
 
-	protected: //protected typedefs
+	public: //typedefs
 
 		typedef Allocator										allocator_type;
 		typedef unsigned long									size_type;
@@ -67,12 +67,12 @@ namespace ft
 									: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0) // range //done
 								{
 									size_type	size;
-									for (Input it = first; it != last; it++, size++);
+									for (InputIt it = first; it != last; it++, size++);
 									_alloc_size = size;
 									_size = _alloc_size;
 									_alloc.allocate(_alloc_size);
 									size_type	i = 0;
-									for (Input it = first; it != last; it++, i++)
+									for (InputIt it = first; it != last; it++, i++)
 										_alloc.construct(&_array[i], *it);
 								}
 
@@ -150,14 +150,14 @@ namespace ft
 		const T*				data() const {return _array;} //done
 
 		// Iterators
-		iterator				begin() {return iterator(&_array[0]);} //done
-		const_iterator			begin() const {return const_iterator(&_array[0]);} //done
-		iterator				end() {return iterator(&_array[_size - 1]);} //done
-		const_iterator			end() const {return const_iterator(&_array[_size - 1]);} //done
-		reverse_iterator		rbegin() {return reverse_iterator(end());} //done
-		const_reverse_iterator	rbegin() const {return const_reverse_iterator(end());} //done
-		reverse_iterator		rend() {return reverse_iterator(begin());} //done
-		const_reverse_iterator	rend() const {return const_reverse_iterator(begin());} //done
+		iterator				begin() _NOEXCEPT {return iterator(&_array[0]);} //done
+		const_iterator			begin() const _NOEXCEPT {return const_iterator(&_array[0]);} //done
+		iterator				end() _NOEXCEPT {return iterator(&_array[_size]);} //done
+		const_iterator			end() const _NOEXCEPT {return const_iterator(&_array[_size]);} //done
+		reverse_iterator		rbegin() _NOEXCEPT {return reverse_iterator(end());} //done
+		const_reverse_iterator	rbegin() const _NOEXCEPT {return const_reverse_iterator(end());} //done
+		reverse_iterator		rend() _NOEXCEPT {return reverse_iterator(begin());} //done
+		const_reverse_iterator	rend() const _NOEXCEPT {return const_reverse_iterator(begin());} //done
 
 		// Capacity
 		bool					empty() const {return _size == 0;} //done
@@ -184,7 +184,7 @@ namespace ft
 				push_back(value);
 			else
 			{
-				value_type temp_val = val;
+				value_type temp_val = value;
 				int cur_pos = pos - begin();
 				if (_size == _alloc_size)
 				{
@@ -242,7 +242,7 @@ namespace ft
 		{
 			for (iterator it = first; it != last; it++)
 				erase(it);
-			return it;
+			return first;
 		}
 		void					push_back(const T& value) //done
 		{
@@ -255,7 +255,7 @@ namespace ft
 		{
 			_alloc.destroy(&_array[_size]);
 			if (_size > 0)
-				size--;
+				_size--;
 		}
 		void					resize(size_type count, T value = T()) //done
 		{
@@ -304,7 +304,7 @@ template <class T, class Allocator> bool operator< (const ft::vector<T,Allocator
 {
 	return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 }
-template <class T, class Allocator> bool operator<=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return (!(rhs < lhs);)} //done
+template <class T, class Allocator> bool operator<=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return (!(rhs < lhs));} //done
 template <class T, class Allocator> bool operator> (const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return (rhs < lhs);} //done
 template <class T, class Allocator> bool operator>=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return (!(lhs < rhs));} //done
 

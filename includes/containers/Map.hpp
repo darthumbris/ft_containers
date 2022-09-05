@@ -34,6 +34,8 @@ namespace ft
 	private:
 		// tree_type										_tree;
 		allocator_type									_alloc;
+		key_compare										_cmp;
+		size_type										_size;
 
 		class value_compare
 		{
@@ -51,29 +53,28 @@ namespace ft
 
 	public:
 
-		map() :_alloc(NULL) {} //default
+		map() :_alloc(NULL), ,_cmp(NULL), _size(0) {} //default
 
 		explicit map (const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) // empty
-		: _alloc(alloc)
-		{
-			value_compare._comp = comp;
-		}
+		: _alloc(alloc), _cmp(comp), _size(0) {}
 
 		template <class InputIt>
-		map (InputIt first, InputIt last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) // range
-		{
+		map (InputIt first, InputIt last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type(),
+		typename ft::enable_if<!ft::is_integral<InputIt>::value, bool>::type = true) // range
+		: _alloc(alloc), _cmp(comp), _size(0) {insert(first, last);}
 
-		}
-
-		map (const map& x) // copy
-		{
-		
-		}
+		map (const map& other) {*this = other} // copy
 
 		~map() {}
 
-		map&										operator=(const map& __m) {}
-		allocator_type								get_allocator() const {}
+		map&										operator=(const map& other)
+		{
+			_alloc = other._alloc;
+			_cmp = other._cmp;
+			_size = other._size;
+			return *this;
+		}
+		allocator_type								get_allocator() const {return _alloc;} //done
 
 		// element access
 		T&											at(const Key& key) {}

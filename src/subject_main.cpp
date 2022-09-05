@@ -46,7 +46,7 @@ struct Buffer
 
 int main(int argc, char** argv) 
 {
-	int	count = 1200;
+	int	count = COUNT;
 	if (argc != 2)
 	{
 		std::cerr << "Usage: ./test seed" << std::endl;

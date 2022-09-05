@@ -1,6 +1,8 @@
 #ifndef ITERATOR_HPP
 # define ITERATOR_HPP
 
+# include "iterator_traits.hpp"
+
 namespace ft
 {
 	template <class T, class Distance = std::ptrdiff_t, class Pointer = T*, class Reference = T&, class Category = std::random_access_iterator_tag>
@@ -8,11 +10,12 @@ namespace ft
 	{
 
 	public: // typedefs
-		typedef Category						iterator_category;
-		typedef T								value_type;
-		typedef Distance						difference_type;
-		typedef Pointer							pointer;
-		typedef Reference						reference;
+		typedef T																iterator_type;
+		typedef typename ft::iterator_traits<iterator_type>::iterator_category	iterator_category;
+		typedef typename ft::iterator_traits<iterator_type>::value_type			value_type;
+		typedef typename ft::iterator_traits<iterator_type>::difference_type	difference_type;
+		typedef typename ft::iterator_traits<iterator_type>::pointer			pointer;
+		typedef typename ft::iterator_traits<iterator_type>::reference			reference;
 		typedef iterator<T, const T*, const T&>	const_iterator_type;
 
 	public: // Member Functions
@@ -26,7 +29,7 @@ namespace ft
 
 		iterator&				operator=(const iterator& rhs) {_ptr = rhs._ptr; return *this;}
 
-		//friend keyword for a couple of these functions because they are declared here instead of outside the class
+		//friend keyword for a couple of these functions because they are nonmember overloads
 		friend bool				operator> (const iterator& lhs, const iterator& rhs) {return lhs.base() > rhs.base();}
 		friend bool				operator>=(const iterator& lhs, const iterator& rhs) {return !(rhs.base() > lhs.base());}
 		friend bool				operator< (const iterator& lhs, const iterator& rhs) {return rhs.base() < lhs.base();}

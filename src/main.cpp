@@ -1,8 +1,11 @@
 #include "containers/vector.hpp"
 #include <vector>
 #include <iostream>
-#include <iterator>
+#include <map>
+// #include <iterator>
 
+
+//TODO make some proper tests
 int main(void)
 {
 	ft::vector<int>     ft_vector_int;
@@ -15,9 +18,6 @@ int main(void)
 	std_vector_int.push_back(123);
 	std_vector_int.push_back(456);
 	std_vector_int.push_back(789);
-
-	// ft::vector<int>::iterator	ft_it = int_vector.begin();
-	// std::vector<int>::iterator	std_it = std_vector_int.begin();
 
 	for (ft::vector<int>::iterator	ft_it = ft_vector_int.begin(); ft_it != ft_vector_int.end(); ft_it++)
 		std::cout << *ft_it << std::endl;

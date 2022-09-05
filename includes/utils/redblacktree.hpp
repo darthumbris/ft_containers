@@ -53,16 +53,15 @@ namespace ft
 			void	swap();
 
 			// Lookup
-			node* find(node* root, T value)
+			node* find(value_type& value) {return findNode(_root, value);} //searches from root of the tree for the value
+			node* findSmallest() //searches from root of three for the smallest value
 			{
-				if (root == NULL || root->data == value)
-					return root;
-				if (_comp(value, *(root->data)))
-					return find(root->right, key);
-				return find(root->left, key);
+
 			}
-			node* findSmallest();
-			node* findLargest();
+			node* findLargest() //searches from the root of the tree for largest value
+			{
+
+			}
 
 		private: // Member functions
 
@@ -265,9 +264,16 @@ namespace ft
 
 			}
 
-			
-
 			// Lookup
+			node*	findNode(node* root, value_type& value) //searches from a point on the tree for the value
+			{
+				if (root == NULL || isEqual(root->data, value))
+					return root;
+				if (_comp(value, *(root->data)))
+					return findNode(root->right, key);
+				return findNode(root->left, key);
+			}
+
 			isEqual(const value_type& a, const value_type& b) //done
 			{
 				if (_comp(a, b))

@@ -39,6 +39,11 @@ ifeq ($(DEBUG),2)
     COM_STRING = "Compiling[LEAKS]"
 endif
 
+ifeq ($(STD_MODE),1)
+	CXXFLAGS += -D STD=1
+    COM_STRING = "Compiling[STD_MODE]"
+endif
+
 all: $(NAME)
 
 $(NAME): $(OBJ)

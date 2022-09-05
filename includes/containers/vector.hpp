@@ -51,11 +51,11 @@ namespace ft
 
 	public:
 
-		explicit				vector(const allocator_type& alloc = allocator_type())
-									: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0) {} // default    //done
+		explicit				vector(const allocator_type& alloc = allocator_type()) // default    //done
+									: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0) {} 
 
-		explicit				vector(size_type count, const T& value = T(), const Allocator& alloc = Allocator())
-									: _array(NULL), _alloc(alloc), _alloc_size(count), _size(count) // fill //done
+		explicit				vector(size_type count, const T& value = T(), const Allocator& alloc = Allocator()) // fill //done
+									: _array(NULL), _alloc(alloc), _alloc_size(count), _size(count) 
 								{
 									_alloc.allocate(_alloc_size);
 									for (size_type i = 0; i < _size; i++)
@@ -63,8 +63,8 @@ namespace ft
 								}
 
 		template <class InputIt>	vector(InputIt first, InputIt last, const Allocator& alloc = Allocator(),
-									typename ft::enable_if<!ft::is_integral<InputIt>::value, bool>::type = true)
-									: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0) // range //done
+									typename ft::enable_if<!ft::is_integral<InputIt>::value, bool>::type = true) // range //done
+									: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0) 
 								{
 									size_type	size;
 									for (InputIt it = first; it != last; it++, size++);
@@ -88,7 +88,8 @@ namespace ft
 								}
 
 		template <class InputIt>
-		typename ft::enable_if<!ft::is_integral<InputIt>::value,void>::type assign(InputIt first, InputIt last) //done
+		typename ft::enable_if<!ft::is_integral<InputIt>::value,void>::type
+								assign(InputIt first, InputIt last) //done
 		{
 			clear();
 			increaseAllocSize(std::distance(first, last));
@@ -247,7 +248,12 @@ namespace ft
 		void					push_back(const T& value) //done
 		{
 			if (_size == _alloc_size)
-				increaseAllocSize(_size + 1);
+			{
+				if (_size == 0)
+					increaseAllocSize(_size + 1);
+				else
+					increaseAllocSize(_size * 2);
+			}
 			_alloc.construct(&_array[_size], value);
 			_size++;
 		}
@@ -293,22 +299,22 @@ namespace ft
 	};
 };
 
-template <class T, class Allocator> bool operator==(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) //done
+template <class T, class Allocator> bool	operator==(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) //done
 {
 	if (lhs._size != rhs._size)
 		return false;
 	return (ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
 }
-template <class T, class Allocator> bool operator!=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return !(lhs == rhs);} //done
-template <class T, class Allocator> bool operator< (const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) //done
+template <class T, class Allocator> bool	operator!=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return !(lhs == rhs);} //done
+template <class T, class Allocator> bool	operator< (const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) //done
 {
 	return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 }
-template <class T, class Allocator> bool operator<=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return (!(rhs < lhs));} //done
-template <class T, class Allocator> bool operator> (const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return (rhs < lhs);} //done
-template <class T, class Allocator> bool operator>=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return (!(lhs < rhs));} //done
+template <class T, class Allocator> bool	operator<=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return (!(rhs < lhs));} //done
+template <class T, class Allocator> bool	operator> (const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return (rhs < lhs);} //done
+template <class T, class Allocator> bool	operator>=(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) {return (!(lhs < rhs));} //done
 
 template <class T, class Allocator>
-void swap(std::vector<T, Allocator>& lhs, std::vector<T,Allocator>& rhs ) {lhs.swap(rhs);} //done
+void										swap(ft::vector<T, Allocator>& lhs, ft::vector<T,Allocator>& rhs) {lhs.swap(rhs);} //done
 
 #endif

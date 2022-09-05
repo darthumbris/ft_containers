@@ -54,11 +54,9 @@ int main(int argc, char** argv)
 		std::cerr << "Count value:" << count << std::endl;
 		return 1;
 	}
-	std::cout << "gasgadfgasdfg" << std::endl;
 	const int seed = atoi(argv[1]);
 	srand(seed);
 
-	std::cout << "gasgadfgasdfg" << std::endl;
 	ft::vector<std::string> vector_str;
 	ft::vector<int> vector_int;
 	// ft::stack<int> stack_int;
@@ -68,11 +66,10 @@ int main(int argc, char** argv)
 	std::cout << "count: " << count << std::endl;
 	for (int i = 0; i < count; i++)
 	{
-		std::cout << i << std::endl;
+		// std::cout << i << std::endl;
 		vector_buffer.push_back(Buffer());
-		std::cout << i << std::endl;
+		// std::cout << i << std::endl;
 	}
-	std::cout << "gasgadfgasdfg" << std::endl;
 	for (int i = 0; i < count; i++)
 	{
 		const int idx = rand() % count;
@@ -93,7 +90,7 @@ int main(int argc, char** argv)
 	{
 		//NORMAL ! :P
 	}
-	std::cout << "gasgadfgasdfg" << std::endl;
+	std::cout << "done" << std::endl;
 	// for (int i = 0; i < COUNT; ++i)
 	// {
 	// 	map_int.insert(ft::make_pair(rand(), rand()));
@@ -117,6 +114,6 @@ int main(int argc, char** argv)
 	// {
 	// 	std::cout << *it;
 	// }
-	std::cout << std::endl;
+	// std::cout << std::endl;
 	return (0);
 }

@@ -109,6 +109,7 @@ namespace ft
 			}
 
 			// Deletions
+			// Function for erasing a node in the tree
 			void	eraseNode(const value_type& value, node* parent) //done
 			{
 				if (!_root)
@@ -134,6 +135,7 @@ namespace ft
 				}
 			}
 
+			// This erases the node found in the eraseNode function
 			void	eraseMatch(node *parent, node *remov) //done
 			{
 				bool	node_is_nil = false;
@@ -207,6 +209,7 @@ namespace ft
 				}
 			}
 
+			// This actually deallocates the node
 			void	removeNode(node *remov) //done
 			{
 				_alloc.destroy(remov->data);
@@ -216,6 +219,7 @@ namespace ft
 				_size--;
 			}
 
+			// This function deallocates the whole tree
 			void	eraseTree(node* root) //done
 			{
 				if (root)
@@ -232,6 +236,7 @@ namespace ft
 			}
 
 			// Reordering
+			// Function updates the parent of the old_child with the new_child
 			void	updateParentChild(node* parent, node* old_child, node* new_child) //done
 			{
 				if (parent == NULL)
@@ -244,12 +249,14 @@ namespace ft
 					new_child->parent = parent;
 			}
 
-			void	recolourInsert(node* root)
+			//After inserting recolour and rebalance tree
+			void	recolourInsert(node* root) 
 			{
 				
 			}
 
-			void	recolourErase(node* root)
+			//After deleting recolour and rebalance tree
+			void	recolourErase(node* root) 
 			{
 
 			}
@@ -265,7 +272,8 @@ namespace ft
 			}
 
 			// Lookup
-			node*	findNode(node* root, value_type& value) //searches from a point on the tree for the value
+			//searches from a point on the tree for the value
+			node*	findNode(node* root, value_type& value) //done
 			{
 				if (root == NULL || isEqual(root->data, value))
 					return root;
@@ -274,6 +282,7 @@ namespace ft
 				return findNode(root->left, key);
 			}
 
+			// checks if the two values are equal using the compare
 			isEqual(const value_type& a, const value_type& b) //done
 			{
 				if (_comp(a, b))
@@ -283,6 +292,7 @@ namespace ft
 				return true;
 			}
 
+			//This is used to check if the node has children
 			size_type	countChildren(node *root)
 			{
 				if (root->left == NULL && root->right == NULL)
@@ -292,11 +302,13 @@ namespace ft
 				return 2;
 			}
 
+			// find the sibling of the parent
 			node*	getUncle(node* parent)
 			{
 
 			}
 
+			// find the sibling of the current node
 			node* getSibling(node* root)
 			{
 

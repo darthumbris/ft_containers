@@ -12,7 +12,7 @@ namespace ft
     template<class value_type>
     struct node
     {
-        // Constructor for node, default colour is RED
+        // Constructor for node, default colour is RED and NIL leaves are also set
         node(node* parent) : colour(RED), parent(parent), left(NULL), right(NULL) {}
 
         value_type* data;

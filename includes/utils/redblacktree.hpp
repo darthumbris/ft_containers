@@ -10,17 +10,18 @@ namespace ft
 	{
 		public:
 			typedef T													value_type;
+			typedef Compare												value_compare;
 			typedef Allocator											allocator_type;
 			typedef typename ft::node<value_type>						node;
 			typedef	unsigned long										size_type;
 			typedef typename Allocator::template rebind<node>::other	node_allocator_type;
 
 		private:
-			node*				_root;
-			allocator_type		_alloc;
-			node_allocator_type	_node_alloc;
-			size_type			_size;
-			Compare				_comp;
+			node*				_root; //root of the tree
+			allocator_type		_alloc; //alloc for the data of the nodes
+			node_allocator_type	_node_alloc; //alloc for the nodes itself
+			size_type			_size; //size of the tree
+			value_compare		_comp; //Compare class used to compare values
 
 		public: // Member functions
 			redblacktree() : _root(NULL), _alloc(NULL), _node_alloc(NULL), _size(0), _comp() {}
@@ -36,10 +37,10 @@ namespace ft
 				return *this;
 			}
 
-			const node*	getRoot() const (return _root;)
+			const node*		root() const (return _root;)
 			
 			// Capacity
-			size_type	size() const {return _size;}
+			const size_type	size() const {return _size;}
 
 			// Modifiers
 			bool	insert(value_type value) {return insertLeaf(_root, value);}
@@ -54,11 +55,11 @@ namespace ft
 
 			// Lookup
 			node* find(value_type& value) {return findNode(_root, value);} //searches from root of the tree for the value
-			node* findSmallest() //searches from root of three for the smallest value
+			node* lowerBound() //searches from root of three for first element not less than value
 			{
 
 			}
-			node* findLargest() //searches from the root of the tree for largest value
+			node* upperBound() //searches from the root of the tree for first element greater than value
 			{
 
 			}
@@ -78,33 +79,33 @@ namespace ft
 
 			bool	insertLeaf(node* root, value_type& value)
 			{
-				if (_root == NULL)
+				if (_root == NULL) //case 0 for inserting nodes
 				{
 					_root = newLeaf(NULL, value);
 					_root->colour = BLACK;
 				}
-				if (_comp(value, *(root->data)))
+				if (_comp(value, *(root->data))) //smaller than node
 				{
-					if (root->left == NULL)
+					if (root->left == NULL) //leaf
 					{
 						root->left = newLeaf(root, value);
-						recolourInsert(root->left);
+						fixViolationInsert(root->left);
 					}
 					else
-						return insert(root->left, value);
+						return insert(root->left, value); //not yet reached a leaf
 				}
-				else if (_comp(*(root->data), value))
+				else if (_comp(*(root->data), value)) // bigger than node
 				{
-					if (root->right == NULL)
+					if (root->right == NULL) //leaf
 					{
 						root->right = newLeaf(root, value);
-						recolourInsert(root->right);
+						fixViolationInsert(root->right);
 					}
 					else
-						return insert(root->right, value);
+						return insert(root->right, value); //not yet reached a leaf
 				}
 				else
-					return false
+					return false; // failed to insert new node
 				return true;
 			}
 
@@ -201,7 +202,7 @@ namespace ft
 						break;
 				}
 				if (erase_colour == BLACK)
-					recolourErase(node_to_move);
+					fixViolationErase(node_to_move);
 				if (nil_node)
 				{
 					updateParentChild(nil_node->parent, nil_node, NULL);
@@ -249,26 +250,90 @@ namespace ft
 					new_child->parent = parent;
 			}
 
-			//After inserting recolour and rebalance tree
-			void	recolourInsert(node* root) 
+			/*After inserting recolour and rotate tree to fix violations
+			* 4 scenarios:
+			* 0. node added is root this case is already handled in the insertleaf function
+			* 1. node added's uncle is red -> recolour parent, grandparent and uncle
+			* 2. node added's uncle is black (triangle) -> rotate parent
+			* 3. node added's uncle is black (line) -> rotate grandparent and recolour grandparent and parent after rotation
+			*/
+			void	fixViolationInsert(node* root) //done
+			{
+				if (root->parent && root->parent->colour = BLACK) // no fixing needed
+					return;
+				if (root->parent == NULL) // case 0
+				{
+					root->colour = BLACK;
+					return;
+				}
+
+				node*	original_parent = root->parent;
+				node*	uncle = getUncle(root);
+				node*	original_grand_parent = getGrandParent(root);
+				if (uncle != NULL && uncle->colour == RED) //case 1
+				{
+					original_parent->colour = BLACK;
+					original_grand_parent->colour = RED;
+					uncle->colour = BLACK;
+					fixViolationInsert(original_grand_parent);
+				}
+				else // case 2 and 3
+				{
+					if (original_parent == original_grand_parent->left)
+					{
+						if (root == original_parent->right)
+						{
+							rotateLeft(original_parent); //case 2 triangle
+							original_parent = root; //case 2 triangle
+						}
+						rotateRight(original_grand_parent); //case 3 line
+					}
+					else
+					{
+						if (root == original_parent->left) 
+						{
+							rotateRight(original_parent); //case 2 triangle
+							original_parent = root;		//case 2 triangle
+						}
+						rotateLeft(original_grand_parent); //case 3 line
+					}
+					original_parent->colour = BLACK; //case 3 line
+					original_grand_parent->colour = RED; //case 3 line
+				}
+			}
+
+			/*After deleting recolour and rotate tree to fix violations
+			*  scenarios:
+			*/
+			void	fixViolationErase(node* root) 
 			{
 				
 			}
 
-			//After deleting recolour and rebalance tree
-			void	recolourErase(node* root) 
-			{
-
-			}
-
 			void	rotateLeft(node* root)
 			{
+				node*	parent = root->parent;
+				node*	right = root->right;
 
+				root->right = right->left;
+				if (right->left != NULL)
+					right->left->parent = root;
+				right->left = root;
+				root->parent = right;
+				updateParentChild(parent, root, right);
 			}
 
 			void	rotateRight(node* root)
 			{
+				node*	parent = root->parent;
+				node*	left = root->left;
 
+				root->left = left->right;
+				if (left->right != NULL)
+					left->right->parent = root;
+				left->right = root;
+				root->parent = left;
+				updateParentChild(parent, root, left);
 			}
 
 			// Lookup
@@ -302,16 +367,35 @@ namespace ft
 				return 2;
 			}
 
-			// find the sibling of the parent
-			node*	getUncle(node* parent)
+			node*	getGrandParent(node *root)
 			{
+				if (root->parent)
+					return root->parent->parent;
+				return NULL;
+			}
 
+			// find the uncle of the node
+			node*	getUncle(node* root)
+			{
+				if (getGrandParent())
+				{
+					if (isEqual(getGrandParent(root)->left->data, root->parent->data))
+						return getGrandParent(root)->right;
+					return getGrandParent(root)->left;
+				}
+				return NULL;
 			}
 
 			// find the sibling of the current node
 			node* getSibling(node* root)
 			{
-
+				if (root->parent)
+				{
+					if (isEqual(root->parent->left->data, root->data))
+						return root->parent->right;
+					return root->parent->left;
+				}
+				return NULL;
 			}
 	};
 }

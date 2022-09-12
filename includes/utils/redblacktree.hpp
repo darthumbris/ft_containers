@@ -19,7 +19,7 @@ namespace ft
 	{
 	public: //typedefs
 
-		typedef Compare												value_compare;
+		// typedef Compare												value_compare;
 		typedef Allocator											allocator_type;
 		typedef	unsigned long										size_type;
 		typedef long												difference_type;
@@ -33,7 +33,7 @@ namespace ft
 		allocator_type		_alloc; //alloc for the data of the nodes
 		node_allocator_type	_node_alloc; //alloc for the nodes itself
 		size_type			_size; //size of the tree
-		value_compare		_comp; //Compare class used to compare values
+		Compare				_comp; //Compare class used to compare values
 
 	public:
 
@@ -237,11 +237,11 @@ namespace ft
 		// This function deallocates the whole tree
 		void	eraseTree(node* root) //done
 		{
-			if (root)
+			if (root != NULL)
 			{
-				if (root->left)
+				if (root->left != NULL)
 					eraseTree(root->left);
-				if (root->right)
+				if (root->right != NULL)
 					eraseTree(root->right);
 				_alloc.destroy(root->data);
 				_alloc.deallocate(root->data, 1);
@@ -429,21 +429,25 @@ namespace ft
 		//searches from a point on the tree for the value
 		node*	findNode(node* root, const value_type& value) const //done
 		{
-			if (root == NULL || isEqual(*root->data, value))
-				return root;
-			if (_comp(value, *(root->data)))
+			if (root != NULL)
+			{
+				if (isEqual(*(root->data), value))
+					return root;
+				else if (_comp(value, *(root->data)))
+					return findNode(root->left, value);
 				return findNode(root->right, value);
-			return findNode(root->left, value);
+			}
+			else
+				return NULL;
 		}
 
 		// Function to find the inorder_successor (smallest value in right side of the subtree)
 		node*	findSmallest(node* root) const //done
 		{
-			node*	current = root;
-
-			while (current && current->left != NULL)
-				current = current->left;
-			return current;
+			if (root && root->left != NULL)
+				return findSmallest(root->left);
+			else
+				return root;
 		}
 
 		node*	findLargest(node* root) const //done

@@ -7,8 +7,8 @@
 	#include <vector>
 	namespace ft = std;
 #else
-	// #include "containers/map.hpp"
-	#include "containers/stack.hpp"
+	#include "containers/map.hpp"
+	// #include "containers/stack.hpp"
 	#include "containers/vector.hpp"
 #endif
 
@@ -55,6 +55,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	const int seed = atoi(argv[1]);
+	std::cout << "seed: " << seed << std::endl;
 	srand(seed);
 
 	ft::vector<std::string> vector_str;
@@ -62,7 +63,7 @@ int main(int argc, char** argv)
 	// ft::stack<int> stack_int;
 	ft::vector<Buffer> vector_buffer;
 	// ft::stack<Buffer, std::deque<Buffer> > stack_deq_buffer;
-	// ft::map<int, int> map_int;
+	ft::map<int, int> map_int;
 	std::cout << "count: " << count << std::endl;
 	for (int i = 0; i < count; i++)
 	{
@@ -91,22 +92,26 @@ int main(int argc, char** argv)
 		//NORMAL ! :P
 	}
 	std::cout << "done" << std::endl;
-	// for (int i = 0; i < COUNT; ++i)
-	// {
-	// 	map_int.insert(ft::make_pair(rand(), rand()));
-	// }
+	for (int i = 0; i < COUNT; ++i)
+	{
+		int	key = rand();
+		int	value = rand();
+		map_int.insert(ft::make_pair(key, value));
+	}
 
-	// int sum = 0;
-	// for (int i = 0; i < 10000; i++)
-	// {
-	// 	int access = rand();
-	// 	sum += map_int[access];
-	// }
-	// std::cout << "should be constant with the same seed: " << sum << std::endl;
+	std::cout << "done with inserting into the map" << std::endl;
 
-	// {
-	// 	ft::map<int, int> copy = map_int;
-	// }
+	int sum = 0;
+	for (int i = 0; i < 10000; i++)
+	{
+		int access = rand();
+		sum += map_int[access];
+	}
+	std::cout << "should be constant with the same seed: " << sum << std::endl;
+
+	{
+		ft::map<int, int> copy = map_int;
+	}
 	// MutantStack<char> iterable_stack;
 	// for (char letter = 'a'; letter <= 'z'; letter++)
 	// 	iterable_stack.push(letter);

@@ -81,15 +81,15 @@ namespace ft
 		typename ft::enable_if<!ft::is_integral<InputIt>::value, bool>::type = true) // range
 		: _tree(alloc, value_compare(comp)), _alloc(alloc), _cmp(comp) {insert(first, last);}
 
-		map (const map& other) {*this = other;} // copy
+		map (const map& other) :_tree(other._alloc, value_compare(other._cmp)) {*this = other;} // copy
 
 		~map() {_tree.clear();} //done
 
 		map&										operator=(const map& other) //done
 		{
-			_tree = other._tree;
-			_alloc = other._alloc;
 			_cmp = other._cmp;
+			_tree.clear();
+			insert(other.begin(), other.end());
 			return *this;
 		}
 		allocator_type								get_allocator() const {return _alloc;} //done
@@ -97,24 +97,29 @@ namespace ft
 		// element access
 		T&											at(const Key& key) //done
 		{
-			ft::node<value_type>* child = _tree.find(key);
+			ft::node<value_type>* child = _tree.find(ft::make_pair(key, mapped_type()));
 			if (child == NULL)
 				throw out_of_range("map::at:  key not found");
 			return child->data->second;
 		}
 		const T&									at(const Key& key) const //done
 		{
-			ft::node<value_type>* child = _tree.find(key);
+			ft::node<value_type>* child = _tree.find(ft::make_pair(key, mapped_type()));
 			if (child == NULL)
 				throw out_of_range("map::at:  key not found");
 			return child->data->second;
 		}
-		T&											operator[]( const Key& key ) {return at(key);} //done
+		T&											operator[]( const Key& key )
+		{
+			value_type	value = ft::make_pair(key, mapped_type());
+			_tree.insert(value);
+			return _tree.find(value)->data->second;
+		} //done
 
 
 		// iterators
-		iterator									begin() {return iterator(_tree.findSmallest());} //done
-		const_iterator								begin() const {return const_iterator(_tree.findSmallest());} //done
+		iterator									begin() {return iterator(_tree.findSmallest(), &_tree);} //done
+		const_iterator								begin() const {return const_iterator(_tree.findSmallest(), &_tree);} //done
 		iterator									end() {return iterator(NULL, &_tree);} //done
 		const_iterator								end() const {return const_iterator(NULL, &_tree);} //done
 		reverse_iterator							rbegin() {return reverse_iterator(end());} //done
@@ -133,7 +138,7 @@ namespace ft
 		ft::pair<iterator, bool>					insert(const value_type& value) //done
 		{
 			bool	succes = _tree.insert(value);
-			return ft::make_pair(iterator(_tree.find(value)), succes);
+			return ft::make_pair(iterator(_tree.find(value), &_tree), succes);
 		}
 		iterator									insert(iterator hint, const value_type& value) //done
 		{
@@ -162,9 +167,9 @@ namespace ft
 		}
 		size_type									erase(const Key& key) //done
 		{
-			if (_tree.find(key) != NULL)
+			if (_tree.find(ft::make_pair(key, mapped_type())) != NULL)
 			{
-				_tree.erase(key);
+				_tree.erase(ft::make_pair(key, mapped_type()));
 				return 1;
 			}
 			return 0;
@@ -183,18 +188,18 @@ namespace ft
 		// Lookup
 		size_type									count(const Key& key) const //done
 		{
-			if (_tree.find(key) != NULL)
+			if (_tree.find(ft::make_pair(key, mapped_type())) != NULL)
 				return 1;
 			return 0;
 		}
-		iterator									find(const Key& key) {return iterator(_tree.find(key));} //done
-		const_iterator								find(const Key& key) const {return const_iterator(_tree.find(key));} //done
+		iterator									find(const Key& key) {return iterator(_tree.find(ft::make_pair(key, mapped_type())), &_tree);} //done
+		const_iterator								find(const Key& key) const {return const_iterator(_tree.find(ft::make_pair(key, mapped_type())), &_tree);} //done
 		ft::pair<iterator,iterator>					equal_range(const Key& key) {return ft::make_pair(lower_bound(key), upper_bound(key));} //done
 		ft::pair<const_iterator,const_iterator>		equal_range(const Key& key) const {return ft::make_pair(lower_bound(key), upper_bound(key));} //done
-		iterator									lower_bound(const Key& key) {return iterator(_tree.lower_bound(key));} //done
-		const_iterator								lower_bound(const Key& key) const {return const_iterator(_tree.lower_bound(key));} //done
-		iterator									upper_bound(const Key& key) {return iterator(_tree.upper_bound(key));} //done
-		const_iterator								upper_bound(const Key& key) const {return const_iterator(_tree.upper_bound(key));} //done
+		iterator									lower_bound(const Key& key) {return iterator(_tree.lower_bound(key), &_tree);} //done
+		const_iterator								lower_bound(const Key& key) const {return const_iterator(_tree.lower_bound(key), &_tree);} //done
+		iterator									upper_bound(const Key& key) {return iterator(_tree.upper_bound(key), &_tree);} //done
+		const_iterator								upper_bound(const Key& key) const {return const_iterator(_tree.upper_bound(key), &_tree);} //done
 
 		// Observers
 		key_compare									key_comp() const {return _cmp;} //done

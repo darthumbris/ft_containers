@@ -10,13 +10,17 @@ namespace ft
 	{
 
 	public: // typedefs
-		typedef T																iterator_type;
-		typedef typename ft::iterator_traits<iterator_type>::iterator_category	iterator_category;
-		typedef typename ft::iterator_traits<iterator_type>::value_type			value_type;
-		typedef typename ft::iterator_traits<iterator_type>::difference_type	difference_type;
-		typedef typename ft::iterator_traits<iterator_type>::pointer			pointer;
-		typedef typename ft::iterator_traits<iterator_type>::reference			reference;
-		typedef iterator<T, const T*, const T&>	const_iterator_type;
+		// typedef T																iterator_type;
+		typedef T																value_type;
+		typedef Category	iterator_category;
+		// typedef typename ft::iterator_traits<iterator_type>::value_type			value_type;
+		typedef Distance	difference_type;
+		typedef Pointer			pointer;
+		typedef Reference			reference;
+		typedef iterator<T, const T*, const T&>									const_iterator_type;
+
+	private: // Variables
+		value_type* 	_ptr;
 
 	public: // Member Functions
 		iterator(void) : _ptr(NULL) {} //default
@@ -59,9 +63,6 @@ namespace ft
 		reference				operator[](difference_type index) {iterator copy(*this); copy._ptr += index; return *copy._ptr;}
 
 		value_type*				base() const {return _ptr;}
-
-	private: // Variables
-		value_type* 	_ptr;
 
 	};
 }

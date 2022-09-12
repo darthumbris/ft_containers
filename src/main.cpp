@@ -2,6 +2,8 @@
 #include <vector>
 #include <iostream>
 #include <map>
+#include "containers/map.hpp"
+#include "utils/redblacktree.hpp"
 // #include <iterator>
 
 
@@ -10,6 +12,30 @@ int main(void)
 {
 	ft::vector<int>     ft_vector_int;
 	std::vector<int>    std_vector_int;
+
+	ft::map<int, int>	ft_map_int_int;
+	std::map<int, int>	std_map_int_int;
+
+	// std::cout << "max_size map: " << ft_map_int_int.max_size() << std::endl;
+	// std::cout << "max_size map: " << std_map_int_int.max_size() << std::endl;
+
+	ft_map_int_int.insert(ft::make_pair(12, 24));
+	ft_map_int_int.insert(ft::make_pair(13, 26));
+	ft_map_int_int.insert(ft::make_pair(14, 28));
+	ft_map_int_int.insert(ft::make_pair(15, 30));
+
+	for (auto it = ft_map_int_int.begin(); it != ft_map_int_int.end(); it++)
+		std::cout << "ft: key of map: " << it->first << "and corresponding value: " << it->second << std::endl;
+
+	std_map_int_int.insert(std::make_pair(12, 24));
+	std_map_int_int.insert(std::make_pair(13, 26));
+	std_map_int_int.insert(std::make_pair(14, 28));
+	std_map_int_int.insert(std::make_pair(15, 30));
+
+	for (auto it = std_map_int_int.begin(); it != std_map_int_int.end(); it++)
+		std::cout << "std: key of map: " << it->first << "and corresponding value: " << it->second << std::endl;
+
+	std::cout << "size of ft map now: " << ft_map_int_int.size() << " and size of std map now: " << std_map_int_int.size() << std::endl;
 
 	ft_vector_int.push_back(123);
 	ft_vector_int.push_back(456);

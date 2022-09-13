@@ -25,8 +25,8 @@ namespace ft
 
 		iterator_type 			base() const {return _iter;}
 
-		reverse_iterator		operator*() const {iterator_type copy(*this); return *(--copy);}
-		reverse_iterator		operator*() {iterator_type copy(*this); return *(--copy);}
+		reference				operator*() const {iterator_type copy(_iter); return *(--copy);}
+		reference				operator*() {iterator_type copy(_iter); return *(--copy);}
 
 		reverse_iterator		operator+(difference_type n) const {reverse_iterator copy(*this); copy._iter -= n; return copy;}
 
@@ -42,12 +42,12 @@ namespace ft
 
 		reverse_iterator&		operator-=(difference_type n) {_iter += n; return *this;}
 
-		reverse_iterator		operator->() const {reverse_iterator copy(*this); return &(*--copy);}
-		reverse_iterator		operator->() {reverse_iterator copy(*this); return &(*--copy);}
+		pointer					operator->() const {reverse_iterator copy(*this); return &(*--copy);}
+		pointer					operator->() {reverse_iterator copy(*this); return &(*--copy);}
 
 		reference				operator[](difference_type n) {reverse_iterator copy(*this); copy._iter -= n; return *(--copy._iter);}
 
-		Iter					getIter() {return _iter;}
+		Iter					getIter() const {return _iter;}
 
 	private:
 		Iter    _iter;

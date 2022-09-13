@@ -3,13 +3,13 @@
 
 
 #include <memory>
-#include "iterators/reverse_iterator.hpp"
-#include "utils/utils.hpp"
+#include "../iterators/reverse_iterator.hpp"
+#include "../utils/utils.hpp"
 #include <iostream>
 
 namespace ft
 {
-	template <class T, class Allocator = std::allocator<T>>
+	template <class T, class Allocator = std::allocator<T> >
 	class vector
 	{		
 
@@ -38,15 +38,39 @@ namespace ft
 		{
 			if (n < _alloc_size)
 				return ;
-			_alloc_size = n;
-			value_type* _temp = _alloc.allocate(_alloc_size);
+			if (n > max_size())
+				throw std::length_error("Reserver error .");
+			value_type* temp = _alloc.allocate(n);
 			for (size_type i = 0; i < _size; i++)
 			{
-				_alloc.construct(&_temp[i], _array[i]);
-				_alloc.destroy(&_array[i]);
+				_alloc.construct(temp + i, _array[i]);
+				_alloc.destroy(_array + i);
 			}
-			_alloc.deallocate(_array, _alloc_size);
-			_array = _temp;
+			if (_alloc_size)
+				_alloc.deallocate(_array, _alloc_size);
+			_alloc_size = n;
+			_array = temp;
+		}
+
+		template<class InputIt, class OutputIt>
+		OutputIt copy_erase (InputIt first, InputIt last, OutputIt result)
+		{
+			while (first!=last)
+			{
+				*result = *first;
+				result++;
+				first++;
+			}
+			return result;
+		}
+
+		template<class InputIt>
+		size_type	distance(InputIt& first, InputIt& last)
+		{
+			size_type	count = 0;
+			for (InputIt it = first; it != last; it++)
+				count++;
+			return count;
 		}
 
 	public:
@@ -55,47 +79,55 @@ namespace ft
 									: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0) {} 
 
 		explicit				vector(size_type count, const T& value = T(), const Allocator& alloc = Allocator()) // fill //done
-									: _array(NULL), _alloc(alloc), _alloc_size(count), _size(count) 
 								{
-									_alloc.allocate(_alloc_size);
-									for (size_type i = 0; i < _size; i++)
-										_alloc.construct(_array[i], value);
+									_size = count;
+									_alloc_size = count;
+									_alloc = alloc;
+									_array = _alloc.allocate(count);
+									for (size_type i = 0; i < count; i++)
+										_alloc.construct(_array + i, value);
 								}
 
 		template <class InputIt>	vector(InputIt first, InputIt last, const Allocator& alloc = Allocator(),
 									typename ft::enable_if<!ft::is_integral<InputIt>::value, bool>::type = true) // range //done
-									: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0) 
 								{
-									size_type	size;
-									for (InputIt it = first; it != last; it++, size++);
-									_alloc_size = size;
-									_size = _alloc_size;
-									_alloc.allocate(_alloc_size);
-									size_type	i = 0;
-									for (InputIt it = first; it != last; it++, i++)
-										_alloc.construct(&_array[i], *it);
+									size_type	diff = last - first;
+									_array = _alloc.allocate(diff);
+									for (size_type i = 0; i < diff; i++)
+									{
+										_alloc.construct(_array + i, *first);
+										first++;
+									}
+									_size = diff;
+									_alloc_size = diff;
+									_alloc = alloc;
 								}
 
-								vector(const vector& other) {*this = other;} // copy //done
+								vector(const vector& other)// copy //done
+								{
+									_size = 0;
+									_alloc_size = 0;
+									*this = other;
+								}
 		
 								~vector() //done
 								{
-									if (_array != NULL)
-									{
-										clear();
+									for(size_type i = 0; i < _size; i++)
+										_alloc.destroy(_array + i);
+									if (_alloc_size)
 										_alloc.deallocate(_array, _alloc_size);
-									}
 								}
 
 		template <class InputIt>
 		typename ft::enable_if<!ft::is_integral<InputIt>::value,void>::type
 								assign(InputIt first, InputIt last) //done
 		{
+			size_type	diff = distance(first, last);
 			clear();
-			increaseAllocSize(std::distance(first, last));
-			for (iterator it = first; it != last; it++)
-				push_back(*it);
-		} //done
+			increaseAllocSize(diff);
+			while (first != last)
+				push_back(*first++);
+		}
 		void 					assign(size_type count, const T& value) //done
 		{
 			clear();
@@ -105,18 +137,22 @@ namespace ft
 		}
 		allocator_type			get_allocator() const {return _alloc;} //done
 		vector& 				operator=(const vector& other) //done
-								{
-									for (size_type i = 0; i < _size; i++)
-										_alloc.destroy(&_array[i]);
-									_alloc.deallocate(_array, _alloc_size);
-									_size = other._size;
-									_alloc_size = other._alloc_size;
-									_array = _alloc.allocate(_alloc_size);
-									_alloc = other._alloc;
-									for (size_type i = 0; i < _size; i++)
-										_alloc.construct(&other._array[i]);
-									return *this;
-								}
+		{
+			if (this != &other)
+			{
+				clear();
+				if (_alloc_size)
+					_alloc.deallocate(_array, _alloc_size);
+				_size = other._size;
+				_alloc_size = other._alloc_size;
+				_alloc = other._alloc;
+				if (_alloc_size)
+					_array = _alloc.allocate(other._alloc_size);
+				for (size_type i = 0; i < _size; i++)
+					_alloc.construct(_array + i, other._array[i]);
+			}
+			return *this;
+		}
 
 		// Element Access
 		reference 				at(size_type pos) //done
@@ -143,10 +179,10 @@ namespace ft
 				throw(std::out_of_range("vector"));
 			return _array[pos];
 		}
-		reference				front() {return *_array[0];} //done
-		const_reference			front() const {return *_array[0];} //done
-		reference				back() {return *_array[_size - 1];} //done
-		const_reference			back() const {return *_array[_size - 1];} //done
+		reference				front() {return _array[0];} //done
+		const_reference			front() const {return _array[0];} //done
+		reference				back() {return _array[_size - 1];} //done
+		const_reference			back() const {return _array[_size - 1];} //done
 		T*						data() {return _array;} //done
 		const T*				data() const {return _array;} //done
 
@@ -180,102 +216,84 @@ namespace ft
 		}
 		iterator				insert(iterator pos, const T& value) //done
 		{
-			size_t start_pos = pos - begin();
-			if (start_pos == end())
-				push_back(value);
-			else
-			{
-				value_type temp_val = value;
-				int cur_pos = pos - begin();
-				if (_size == _alloc_size)
-				{
-					if (_alloc_size == 0)
-						increaseAllocSize(1);
-					else
-						increaseAllocSize(_alloc_size * 2);
-					pos = begin() + cur_pos;
-				}
-				while(pos <= end()) //this moves every value after pos if pos is not at the end.
-				{
-					value_type temp = _array[cur_pos];
-					_alloc.destroy(&_array[cur_pos]);
-					_alloc.construct(&_array[cur_pos], temp_val);
-					temp_val = temp;
-					pos++;
-					cur_pos++;
-				}
-				_size++;
-			}
-			return (begin() + start_pos);
+			vector tmp;
+			size_type index_pos = pos - begin();
+			size_type end_elem = end() - pos;
+
+			tmp.assign(pos, end());
+			_size = index_pos;
+			push_back(value);
+			for (size_type i = 0; i < end_elem; i++)
+				push_back(tmp[i]);
+			return (begin() + index_pos); 
 		}
 		void					insert(iterator pos, size_type count, const T& value) //done
 		{
-			for (size_t i = 0; i < count; i++)
-				insert(pos + i, value);
+			for (size_type i = 0; i < count; i++)
+			{
+				pos = insert(pos, value);
+				pos++;
+			}
 		}
 		void					clear() //done
 		{
-			for (std::size_t i = 0; i < _size; i++)
-				_alloc.destroy(&_array[i]);
+			for (size_type i = 0; i < _size; i++)
+				_alloc.destroy(_array + i);
 			_size = 0;
 		}
-		iterator				erase(iterator pos) //done
+		//TODO make this erase prettier and better
+		iterator				erase(iterator pos) //done 
 		{
-			size_t start_pos = pos - begin();
-			if (start_pos == end())
-				pop_back();
+			pointer p_pos = &(*pos);
+			// _alloc.destroy(&(*pos));
+			if (&(*pos) + 1 == end())
+				_alloc.destroy(&(*pos));
 			else
 			{
-				int cur_pos = pos - begin();
-				while(pos <= end()) //this moves every value after pos if pos is not at the end.
+				for (int i = 0; i < end() - &(*pos) - 1; i++)
 				{
-					value_type temp = _array[cur_pos + 1];
-					_alloc.destroy(&_array[cur_pos]);
-					_alloc.construct(&_array[cur_pos], temp);
-					pos++;
-					cur_pos++;
+					_alloc.construct(&(*pos) + i, *(&(*pos) + i + 1));
+					_alloc.destroy(&(*pos) + i + 1);
 				}
-				_size--;
 			}
-			return (start_pos);
+			_size--;
+			return (iterator(p_pos));
 		}
 		iterator				erase(iterator first, iterator last) //done
 		{
-			for (iterator it = first; it != last; it++)
-				erase(it);
+			copy_erase(last, end(), first);
+			_size -= last - first;
 			return first;
 		}
 		void					push_back(const T& value) //done
 		{
-			if (_size == _alloc_size)
-			{
-				if (_size == 0)
-					increaseAllocSize(_size + 1);
-				else
-					increaseAllocSize(_size * 2);
-			}
-			_alloc.construct(&_array[_size], value);
+			if (_alloc_size == 0)
+				increaseAllocSize(1);
+			else if (_size + 1 > _alloc_size)
+				increaseAllocSize(_alloc_size * 2);
+			_alloc.construct(_array + _size, value);
 			_size++;
 		}
 		void					pop_back() //done
 		{
-			_alloc.destroy(&_array[_size]);
 			if (_size > 0)
+			{
+				_alloc.destroy(&back());
 				_size--;
+			}
 		}
 		void					resize(size_type count, T value = T()) //done
 		{
-			if (count < _size)
+			if (count <= _size)
 			{
-				for (size_t i = count; i < _size; i++)
-					_alloc.destroy(&_array[i]);
+				for (size_type i = count; i < _size; i++)
+					_alloc.destroy(_array + i);
 			}
-			else
+			if (count > _size)
 			{
-				if (count > _alloc_size)
-					increaseAllocSize(count);
-				for (size_t i = _size; i < count; i++)
-					_alloc.construct(&_array[i], value);
+				increaseAllocSize(count);
+				for (size_type i = _size; i < count; i++)
+					_alloc.construct(_array + i, value);
 			}
 			_size = count;
 		}
@@ -301,7 +319,7 @@ namespace ft
 
 template <class T, class Allocator> bool	operator==(const ft::vector<T,Allocator>& lhs, const ft::vector<T,Allocator>& rhs) //done
 {
-	if (lhs._size != rhs._size)
+	if (lhs.size() != rhs.size())
 		return false;
 	return (ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
 }

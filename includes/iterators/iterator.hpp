@@ -41,8 +41,8 @@ namespace ft
 		friend bool				operator==(const iterator& lhs, const iterator& rhs) {return lhs.base() == rhs.base();}
 		friend bool				operator!=(const iterator& lhs, const iterator& rhs) {return !(lhs.base() == rhs.base());}
 
-		iterator				operator+(difference_type& n) const {iterator copy(*this); copy._ptr += n; return copy;}
-		friend iterator 		operator+(difference_type& n, const iterator& a) {return a + n;}
+		iterator				operator+(const int& n) const {iterator copy(*this); copy._ptr += n; return copy;}
+		friend iterator 		operator+(const int& n, const iterator& a) {return a + n;}
 		iterator				operator-(const int& n) const {iterator copy(*this); copy._ptr -= n; return copy;}
 		friend difference_type	operator-(const iterator& a, const iterator& b) {return a.base() - b.base();}
 

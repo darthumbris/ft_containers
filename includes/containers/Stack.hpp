@@ -22,7 +22,7 @@ namespace ft
 
 	public:
 
-		explicit	stack(const Container& cont = Container()) {}
+		explicit	stack(const Container& cont = Container()) : c(cont) {}
 
 					stack(const stack& other) {*this = other;} // copy //done
 		
@@ -39,7 +39,7 @@ namespace ft
 		const_reference	top() const {return c.back();}
 
 		// Capacity
-		bool			empty() const {return (c.size() == 0);}
+		bool			empty() const {return c.empty();}
 		size_type		size() const {return c.size();}
 
 		void			push(const value_type& value) {c.push_back(value);}

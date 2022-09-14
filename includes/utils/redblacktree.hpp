@@ -1,8 +1,8 @@
 #ifndef REDBLACKTREE_HPP
 # define REDBLACKTREE_HPP
 
-# include "node.hpp"
-# include "Tree.hpp"
+// # include "node.hpp"
+// # include "Tree.hpp"
 
 /*
  * notes: 
@@ -14,19 +14,37 @@
 
 namespace ft
 {
-	template<class T, class Allocator, class Compare>
-	class redblacktree : public Tree<T>
+	enum colour
+    {
+        BLACK,
+        RED
+    };
+
+    template<typename value_type>
+    struct node
+    {
+        // Constructor for node, default colour is RED and NIL leaves are also set
+        node(node* parent) : colour(RED), parent(parent), left(NULL), right(NULL) {}
+
+        value_type* data;
+        colour      colour;
+        node*       parent;
+        node*       left;
+        node*       right;
+    };
+
+
+	template<class T, class Alloc, class Compare>
+	class redblacktree
 	{
 	public: //typedefs
 
-		// typedef Compare												value_compare;
-		typedef Allocator											allocator_type;
-		typedef	unsigned long										size_type;
-		typedef long												difference_type;
-		typedef Tree<T>												Tree;
-		typedef typename Tree::value_type							value_type;
-		typedef typename Tree::node									node;
-		typedef typename Allocator::template rebind<node>::other	node_allocator_type;
+		typedef Alloc											allocator_type;
+		typedef	unsigned long									size_type;
+		typedef long											difference_type;
+		typedef T												value_type;
+		typedef ft::node<value_type>							node;
+		typedef typename Alloc::template rebind<node>::other	node_allocator_type;
 
 	private:
 		node*				_root; //root of the tree
@@ -37,7 +55,7 @@ namespace ft
 
 	public:
 
-		redblacktree(allocator_type alloc, Compare compare) : _root(NULL), _alloc(alloc), _size(0), _comp(compare) {}
+		redblacktree(Alloc alloc, Compare compare) : _root(NULL), _alloc(alloc), _size(0), _comp(compare) {}
 		redblacktree() : _root(NULL), _alloc(), _size(0), _comp() {}
 		~redblacktree() {}
 
@@ -66,7 +84,25 @@ namespace ft
 			_size = 0;
 		}
 		void	erase(const value_type& value) {eraseNode(value, _root);} //erase single node in tree
-		void	swap() {}
+		void	swap(redblacktree& tree)
+		{
+			node*				temp_root = _root;
+			size_type			temp_size = _size;
+			Compare 			temp_comp = _comp;
+			allocator_type		temp_alloc= _alloc;
+			node_allocator_type	temp_node_alloc = _node_alloc;
+
+			_root = tree._root;
+			tree._root = temp_root;
+			_size = tree._size;
+			tree._size = temp_size;
+			_comp = tree._comp;
+			tree._comp = temp_comp;
+			_alloc = tree._alloc;
+			tree._alloc = temp_alloc;
+			_node_alloc = tree._node_alloc;
+			tree._node_alloc = temp_node_alloc;
+		}
 
 		// Lookup
 		node* find(const value_type& value) const {return findNode(_root, value);} //searches from root of the tree for the value
@@ -75,16 +111,35 @@ namespace ft
 		node* lower_bound(const value_type& value) const
 		{
 			node*	lower = findNode(_root, value);
-			if (lower != NULL)
-				return lower;
-			return findLargest(_root);
+			if (lower == NULL)
+				return NULL;
+			if (lower->right != NULL)
+				return findSmallest(lower->right);
+			node* successor = lower->parent;
+			while (successor != NULL && lower == successor->right)
+			{
+				lower = successor;
+				successor = successor->parent;
+			}
+			lower = successor;
+			return lower;
 		}
-		node* upper_bound(const value_type& value)
+		node* upper_bound(const value_type& value) const
 		{
 			node*	upper = findNode(_root, value);
-			if (upper != NULL && upper->right != NULL)
-				return upper;
-			return findLargest(_root);
+			if (upper == NULL)
+				return NULL;
+			if (upper->left != NULL)
+				return findLargest(upper->left);
+
+			node* pred = upper->parent;
+			while (pred != NULL && upper == pred->left)
+			{
+				upper = pred;
+				pred = pred->parent;
+			}
+			upper = pred;
+			return upper;
 		}
 
 	private:
@@ -144,14 +199,14 @@ namespace ft
 			{
 				if (_comp(*(parent->data), value) && parent->right)
 				{
-					if (isEqual(parent->right->data, value))
+					if (isEqual(*parent->right->data, value))
 						eraseMatch(parent, parent->right);
 					else
 						eraseNode(value, parent->right);
 				}
 				else if (_comp(value, *(parent->data)) && parent->left)
 				{
-					if (isEqual(parent->left->data, value))
+					if (isEqual(*parent->left->data, value))
 						eraseMatch(parent, parent->left);
 					else
 						eraseNode(value, parent->left);
@@ -230,7 +285,7 @@ namespace ft
 			_alloc.destroy(remov->data);
 			_alloc.deallocate(remov->data, 1);
 			_node_alloc.destroy(remov);
-			_node_alloc.deallocate(remov->data, 1);
+			_node_alloc.deallocate(remov, 1);
 			_size--;
 		}
 
@@ -254,7 +309,7 @@ namespace ft
 		// Swaps the data of the two nodes
 		void	swapValues(node* a, node* b)
 		{
-			value_type	temp = a->data;
+			value_type*	temp = a->data;
 			a->data = b->data;
 			b->data = temp;
 		}
@@ -527,7 +582,7 @@ namespace ft
 		{
 			if (root->parent)
 			{
-				if (isEqual(root->parent->left->data, root->data))
+				if (isEqual(*root->parent->left->data, *root->data))
 					return root->parent->right;
 				return root->parent->left;
 			}

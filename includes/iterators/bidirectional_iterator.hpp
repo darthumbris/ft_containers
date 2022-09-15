@@ -1,9 +1,6 @@
 #ifndef BIDIRECTIONAL_ITERATOR_HPP
 # define BIDIRECTIONAL_ITERATOR_HPP
 
-// # include "iterator_traits.hpp"
-// # include "../utils/Tree.hpp"
-
 namespace ft
 {
 	template <class T, class Compare, class Alloc, class Pointer = T*, class Reference = T&>
@@ -20,7 +17,7 @@ namespace ft
 
 	private: // Variables
 		pointer 												_ptr;
-		const	redblacktree<value_type, Alloc, Compare>*	_tree;
+		const	redblacktree<value_type, Alloc, Compare>*		_tree;
 
 	public: // Member Functions
 
@@ -59,13 +56,12 @@ namespace ft
 		bidirectional_iterator&		operator--(void)
 		{
 			ft::node<value_type>	*node = NULL;
-			if (_ptr != NULL)
+			if (!_ptr)
 			{
 				node = _tree->findLargest();
 				if (node)
 					_ptr =  node->data;
-				else
-					return *this;
+				return *this;
 			}
 			node = _tree->find(*_ptr);
 			if (node)

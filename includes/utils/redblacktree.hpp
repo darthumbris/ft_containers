@@ -69,7 +69,7 @@ namespace ft
 			return *this;
 		}
 
-		const node*		root() const {return _root;}
+		node*		root() {return _root;}
 		
 		// Capacity
 		size_type	size() const {return _size;}
@@ -189,94 +189,110 @@ namespace ft
 
 		// Deletions
 		// Function for erasing a node in the tree
-		void	eraseNode(const value_type& value, node* parent) //done
-		{
-			if (!_root)
-				return ;
-			if (isEqual(value, *(parent->data)))
-				eraseMatch(NULL, _root);
-			else
+		void	eraseNode(const value_type& value, node* node) //done
+		{			
+			if (_root != NULL)
 			{
-				if (_comp(*(parent->data), value) && parent->right)
+				if (isEqual(value, *(node->data)))
+					eraseMatch(NULL, _root);
+				else
 				{
-					if (isEqual(*parent->right->data, value))
-						eraseMatch(parent, parent->right);
-					else
-						eraseNode(value, parent->right);
-				}
-				else if (_comp(value, *(parent->data)) && parent->left)
-				{
-					if (isEqual(*parent->left->data, value))
-						eraseMatch(parent, parent->left);
-					else
-						eraseNode(value, parent->left);
+					if (_comp(*(node->data), value) && node->right != NULL)
+					{
+						if (isEqual(*node->right->data, value))
+							eraseMatch(node, node->right);
+						else
+							eraseNode(value, node->right);
+					}
+					else if (_comp(value, *(node->data)) && node->left != NULL)
+					{
+						if (isEqual(*node->left->data, value))
+							eraseMatch(node, node->left);
+						else
+							eraseNode(value, node->left);
+					}
 				}
 			}
 		}
 
 		/*
-			* 2 cases:
-			* 0. 0 and 1 child simple deletion
-			* 1. 2 children: find inorder predecessor R of remov interchange them and delete the node at R
-			* the inorder predecessor R always has at most one child. This reduces this deletion to case 0.
-			*/
+		* 2 cases:
+		* 0. 0 and 1 child simple deletion
+		* 1. 2 children: find inorder predecessor R of remov interchange them and delete the node at R
+		* the inorder predecessor R always has at most one child. This reduces this deletion to case 0.
+		*/
 		// This erases the node found in the eraseNode function
 		void	eraseMatch(node *parent, node *remov) //done
 		{
-			node*	replacer = getNodeReplacer(remov);
-			bool	both_black = ((replacer == NULL || replacer->colour == BLACK) && remov->colour == BLACK);
+			node*	node_move_up = remov;
+			colour	deleted_colour = remov->colour;
+			bool	is_nill = false;
+			node*	nil_node = NULL;
 
-			//case 0 - 0 child
-			if (replacer == NULL)
+			if (remov->left == NULL && remov->right == NULL)
 			{
-				if (remov == _root)
-					_root = NULL;
+				is_nill = true;
+				nil_node = remov;
+			}
+			else if (remov->left == NULL || remov->right == NULL)
+			{
+				if (remov->right != NULL)
+					node_move_up = remov->right;
+				else
+					node_move_up = remov->left;
+				updateParentChild(parent, remov, node_move_up);
+				node_move_up->parent = remov->parent;
+				removeNode(remov);
+			}
+			else
+			{
+				node* smallest = findSmallest(remov->right);
+				if (smallest->right)
+					node_move_up = smallest->right;
 				else
 				{
-					if (both_black)
-						fixViolationErase(remov);
-					else
+					is_nill = true;
+					value_type	nil_data = value_type();
+					nil_node = newLeaf(NULL, nil_data);
+					nil_node->colour = BLACK;
+					updateParentChild(smallest->parent, smallest, nil_node);
+					node_move_up = nil_node;
+				}
+				if (smallest->parent == remov)
+				{
+					updateParentChild(remov->parent, remov, smallest);
+					smallest->left = remov->left;
+					remov->left->parent = smallest;
+					if (!smallest->right)
 					{
-						if (getSibling(remov) != NULL)
-							getSibling(remov)->colour = RED;
-						if (isLeftNode(remov))
-							parent->left = NULL;
-						else
-							parent->right = NULL;
+						smallest->right = nil_node;
+						nil_node->parent = smallest;
 					}
 				}
-				removeNode(remov);
-				return ;
-			}
-			//case 0 - 1 child
-			if (remov->left == NULL || remov->right == NULL)
-			{
-				if (remov == _root)
-				{
-					remov->data = replacer->data;
-					remov->left = NULL;
-					remov->right = NULL;
-					removeNode(replacer);
-				}
 				else
 				{
-					if (isLeftNode(remov))
-						parent->left = replacer;
-					else
-						parent->right = replacer;
-					removeNode(remov);
-					replacer->parent = parent;
-					if (both_black)
-						fixViolationErase(replacer);
-					else
-						replacer->colour = BLACK;
+					if (smallest->right)
+					{
+						smallest->right->parent = smallest->parent;
+						smallest->parent->left = smallest->right;
+					}
+					updateParentChild(remov->parent, remov, smallest);
+					smallest->left = remov->left;
+					remov->left->parent = smallest;
+					smallest->right = remov->right;
+					remov->right->parent = smallest;
 				}
-				return ;
+				deleted_colour = smallest->colour;
+				smallest->colour = remov->colour;
+				removeNode(remov);
 			}
-
-			//case 1 - 2 children
-			swapValues(replacer, remov);
-			eraseMatch(replacer->parent, replacer);
+			if (deleted_colour == BLACK)
+				fixViolationErase(node_move_up);
+			if (is_nill)
+			{
+				updateParentChild(nil_node->parent, nil_node, NULL);
+				removeNode(nil_node);
+			}
 		}
 
 		// This actually deallocates the node
@@ -306,24 +322,17 @@ namespace ft
 		}
 
 		// Reordering
-		// Swaps the data of the two nodes
-		void	swapValues(node* a, node* b)
-		{
-			value_type*	temp = a->data;
-			a->data = b->data;
-			b->data = temp;
-		}
 
 		// Function updates the parent of the old_child with the new_child
 		void	updateParentChild(node* parent, node* old_child, node* new_child) //done
 		{
 			if (parent == NULL)
 				_root = new_child;
-			else if (parent->right == old_child)
-				parent->right = new_child;
 			else if (parent->left == old_child)
 				parent->left = new_child;
-			if (new_child)
+			else if (parent->right == old_child)
+				parent->right = new_child;
+			if (new_child != NULL)
 				new_child->parent = parent;
 		}
 
@@ -343,7 +352,6 @@ namespace ft
 				root->colour = BLACK;
 				return;
 			}
-
 			node*	original_parent = root->parent;
 			node*	uncle = getUncle(root);
 			node*	original_grand_parent = getGrandParent(root);
@@ -380,76 +388,66 @@ namespace ft
 		}
 
 		/*After deleting recolour and rotate tree to fix violations
-			* 3 scenarios based on the sibling
-			* 0. sibling is black and has a red child
-			* 1. sibling is black and has a black children -> recursive solve
-			* 2. sibling is red -> rotate and recolour , recursive
-			*/
-		void	fixViolationErase(node* root) 
+		* 3 scenarios based on the sibling
+		* 0. sibling is black and has a red child
+		* 1. sibling is black and has a black children -> recursive solve
+		* 2. sibling is red -> rotate and recolour , recursive
+		*/
+		void	fixViolationErase(node* moved) 
 		{
-			if (root == _root)
-				return;
-			node*	sibling = getSibling(root);
-			node*	parent = root->parent;
-
-			if (sibling == NULL) // no siblings case 1.
-				fixViolationErase(parent);
-			else
+			if (moved == _root)
 			{
-				if (sibling->colour == RED) //sibling is red
+				moved->colour = BLACK;
+				return;
+			}
+			node*	sibling = getSibling(moved);
+
+			if (sibling->colour == RED) //sibling is red
+			{
+				sibling->colour = BLACK;
+				moved->parent->colour = RED;
+				if (moved == moved->parent->left)
+					rotateLeft(moved->parent);
+				else
+					rotateRight(moved->parent);	
+			}
+			if (isNilorBlack(sibling->left) && isNilorBlack(sibling->right))
+			{
+				sibling->colour = RED;
+				if (moved->parent->colour == RED)
+					moved->parent->colour = BLACK;
+				else
+					fixViolationErase(moved->parent);
+			}
+			else //sibling has red child
+			{
+				bool	node_left = (moved == moved->parent->left);
+				if (node_left && isNilorBlack(sibling->right))
 				{
-					parent->colour = RED;
-					sibling->colour = BLACK;
-					if (isLeftNode(sibling))
-						rotateRight(parent);
-					else
-						rotateLeft(parent);
-					fixViolationErase(root);
+					sibling->left->colour = BLACK;
+					sibling->colour = RED;
+					rotateRight(sibling);
+					sibling = moved->parent->right;
+				}
+				else if (!node_left && isNilorBlack(sibling->left))
+				{
+					sibling->right->colour = BLACK;
+					sibling->colour = RED;
+					rotateLeft(sibling);
+					sibling = moved->parent->left;
+				}
+
+				sibling->colour = moved->parent->colour;
+				moved->parent->colour = BLACK;
+				if (node_left)
+				{
+					sibling->right->colour = BLACK;
+					rotateLeft(moved->parent);
 				}
 				else
 				{
-					if (hasRedChild(sibling))
-					{
-						if (sibling->left != NULL && sibling->left->colour == RED)
-						{
-							if (isLeftNode(sibling))
-							{
-								sibling->left->colour = sibling->colour;
-								sibling->colour = parent->colour;
-								rotateRight(parent);
-							}
-							else
-							{
-								sibling->left->colour = parent->colour;
-								rotateRight(sibling);
-								rotateLeft(parent);
-							}
-						}
-						else
-						{
-							if (isLeftNode(sibling))
-							{
-								sibling->right->colour = parent->colour;
-								rotateLeft(sibling);
-								rotateRight(parent);
-							}
-							else
-							{
-								sibling->right->colour = sibling->colour;
-								sibling->colour = parent->colour;
-								rotateLeft(parent);
-							}
-						}
-						parent->colour = BLACK;
-					}
-					else
-					{
-						sibling->colour = RED;
-						if (parent->colour == BLACK)
-							fixViolationErase(parent);
-						else
-							parent->colour = BLACK;
-					}
+					sibling->left->colour = BLACK;
+					rotateRight(moved->parent);
 				}
 			}
 		}
@@ -499,10 +497,11 @@ namespace ft
 		// Function to find the inorder_successor (smallest value in right side of the subtree)
 		node*	findSmallest(node* root) const //done
 		{
-			if (root && root->left != NULL)
-				return findSmallest(root->left);
-			else
-				return root;
+			node*	current = root;
+		
+			while (current && current->left != NULL)
+				current = current->left;
+			return current;
 		}
 
 		node*	findLargest(node* root) const //done
@@ -513,17 +512,6 @@ namespace ft
 				current = current->right;
 			return current;
 		}
-
-		node*	getNodeReplacer(node* root)
-		{
-			if (root->left == NULL && root->right == NULL)
-				return NULL;
-			if (root->left != NULL && root->right != NULL)
-				return findSmallest(root->right);
-			if (root->left != NULL)
-				return root->left;
-			return root->right;
-		}
 		
 		// checks if the two values are equal using the compare
 		bool	isEqual(const value_type& a, const value_type& b) const //done
@@ -533,32 +521,6 @@ namespace ft
 			else if (_comp(b, a))
 				return false;
 			return true;
-		}
-
-		bool	isLeftNode(node* root)
-		{
-			if (root->parent->left == _root)
-				return true;
-			return false;
-		}
-
-		bool	hasRedChild(node *root)
-		{
-			if (root->left && root->left->colour == RED)
-				return true;
-			if (root->right && root->right->colour == RED)
-				return true;
-			return false;
-		}
-
-		//This is used to check if the node has children
-		size_type	countChildren(node *root)
-		{
-			if (root->left == NULL && root->right == NULL)
-				return 0;
-			else if (root->left == NULL || root->right == NULL)
-				return 1;
-			return 2;
 		}
 
 		node*	getGrandParent(node *root)
@@ -580,13 +542,16 @@ namespace ft
 		// find the sibling of the current node
 		node* getSibling(node* root)
 		{
-			if (root->parent)
-			{
-				if (isEqual(*root->parent->left->data, *root->data))
-					return root->parent->right;
-				return root->parent->left;
-			}
-			return NULL;
+			node* parent = root->parent;
+			if (root == parent->left)
+				return parent->right;
+			else
+				return parent->left;
+		}
+
+		bool	isNilorBlack(node* root)
+		{
+			return (root == NULL || root->colour == BLACK);
 		}
 	};
 }

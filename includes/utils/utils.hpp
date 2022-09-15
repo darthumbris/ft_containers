@@ -50,8 +50,8 @@ namespace ft
 				return false;
 			else if (comp(*first1, *first2))
 				return true;
-			++first1;
-			++first2;
+			first1++;
+			first2++;
 		}
 		return (first2 != last2);
 	}
@@ -63,8 +63,8 @@ namespace ft
 		{
 			if (!(*first1 == *first2))
      			return false;
-			++first1;
-			++first2;
+			first1++;
+			first2++;
  		}
 		return true;
 	}

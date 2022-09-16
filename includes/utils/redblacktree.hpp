@@ -11,6 +11,7 @@
 
 namespace ft
 {
+	//=================Node Struct=================================================
 	enum colour
     {
         BLACK,
@@ -31,7 +32,7 @@ namespace ft
         node*       right;
     };
 
-
+	//=====================Tree Inheritor Class=======================================
 	// Inheritance class for use in the bidirectional iterator (tree doesnt need the value_compare and allocator)
 	template<class T>
 	class tree
@@ -48,6 +49,8 @@ namespace ft
 		virtual node*		findLargest() const = 0;
 		virtual size_type	size() const = 0;
 	};
+
+	//============================RED BLACK TREE BINARY SEARCH======================
 
 	// Binary search tree using the redblack tree method
 	template<class T, class Alloc, class Compare>
@@ -123,39 +126,6 @@ namespace ft
 		node* find(const value_type& value) const {return findNode(_root, value);} //searches from root of the tree for the value
 		node* findLargest() const {return findLargest(_root);}
 		node* findSmallest() const {return findSmallest(_root);}
-		node* lower_bound(const value_type& value) const
-		{
-			node*	lower = findNode(_root, value);
-			if (lower == NULL)
-				return NULL;
-			if (lower->right != NULL)
-				return findSmallest(lower->right);
-			node* successor = lower->parent;
-			while (successor != NULL && lower == successor->right)
-			{
-				lower = successor;
-				successor = successor->parent;
-			}
-			lower = successor;
-			return lower;
-		}
-		node* upper_bound(const value_type& value) const
-		{
-			node*	upper = findNode(_root, value);
-			if (upper == NULL)
-				return NULL;
-			if (upper->left != NULL)
-				return findLargest(upper->left);
-
-			node* pred = upper->parent;
-			while (pred != NULL && upper == pred->left)
-			{
-				upper = pred;
-				pred = pred->parent;
-			}
-			upper = pred;
-			return upper;
-		}
 
 	private: //private member functions
 
@@ -170,6 +140,18 @@ namespace ft
 			return new_node;
 		}
 
+		bool	newAndFix(node** new_node, node* node, value_type& value)
+		{
+			if (*new_node == NULL)
+			{
+				*new_node = newLeaf(node, value);
+				fixViolationInsert(*new_node);
+			}
+			else
+				return insertLeaf(*new_node, value);
+			return true;
+		}
+
 		bool	insertLeaf(node* root, value_type& value)
 		{
 			if (_root == NULL) //case 0 for inserting nodes
@@ -178,25 +160,9 @@ namespace ft
 				_root->colour = BLACK;
 			}
 			else if (_comp(value, *(root->data))) //smaller than node
-			{
-				if (root->left == NULL) //leaf
-				{
-					root->left = newLeaf(root, value);
-					fixViolationInsert(root->left);
-				}
-				else
-					return insertLeaf(root->left, value); //not yet reached a leaf
-			}
+				return newAndFix(&root->left, root, value);
 			else if (_comp(*(root->data), value)) // bigger than node
-			{
-				if (root->right == NULL) //leaf
-				{
-					root->right = newLeaf(root, value);
-					fixViolationInsert(root->right);
-				}
-				else
-					return insertLeaf(root->right, value); //not yet reached a leaf
-			}
+				return newAndFix(&root->right, root, value);
 			else
 				return false; // failed to insert new node
 			return true;
@@ -230,6 +196,52 @@ namespace ft
 			}
 		}
 
+		bool	eraseForTwoChildren(node** remov, node** node_move_up, node **nil_node, colour* deleted_colour)
+		{
+			node*	smallest = findSmallest((*remov)->right);
+			bool	is_nill = false;
+
+			if (smallest->right)
+				*node_move_up = smallest->right;
+			else
+			{
+				is_nill = true;
+				value_type	nil_data = value_type(); //because it requires a reference
+				*nil_node = newLeaf(NULL, nil_data);
+				(*nil_node)->colour = BLACK;
+				updateParentChild(smallest->parent, smallest, *nil_node);
+				*node_move_up = *nil_node;
+			}
+			if (smallest->parent == *remov)
+			{
+				updateParentChild((*remov)->parent, *remov, smallest);
+				smallest->left = (*remov)->left;
+				(*remov)->left->parent = smallest;
+				if (!smallest->right)
+				{
+					smallest->right = *nil_node;
+					(*nil_node)->parent = smallest;
+				}
+			}
+			else
+			{
+				if (smallest->right)
+				{
+					smallest->right->parent = smallest->parent;
+					smallest->parent->left = smallest->right;
+				}
+				updateParentChild((*remov)->parent, *remov, smallest);
+				smallest->left = (*remov)->left;
+				(*remov)->left->parent = smallest;
+				smallest->right = (*remov)->right;
+				(*remov)->right->parent = smallest;
+			}
+			*deleted_colour = smallest->colour;
+			smallest->colour = (*remov)->colour;
+			removeNode(*remov);
+			return is_nill;
+		}
+
 		//TODO clean this up (maybe split up)
 		/*
 		* 2 cases:
@@ -245,12 +257,12 @@ namespace ft
 			bool	is_nill = false;
 			node*	nil_node = NULL;
 
-			if (remov->left == NULL && remov->right == NULL)
+			if (remov->left == NULL && remov->right == NULL) // 0 children
 			{
 				is_nill = true;
 				nil_node = remov;
 			}
-			else if (remov->left == NULL || remov->right == NULL)
+			else if (remov->left == NULL || remov->right == NULL) // 1 child
 			{
 				if (remov->right != NULL)
 					node_move_up = remov->right;
@@ -260,48 +272,8 @@ namespace ft
 				node_move_up->parent = remov->parent;
 				removeNode(remov);
 			}
-			else
-			{
-				node* smallest = findSmallest(remov->right);
-				if (smallest->right)
-					node_move_up = smallest->right;
-				else
-				{
-					is_nill = true;
-					value_type	nil_data = value_type();
-					nil_node = newLeaf(NULL, nil_data);
-					nil_node->colour = BLACK;
-					updateParentChild(smallest->parent, smallest, nil_node);
-					node_move_up = nil_node;
-				}
-				if (smallest->parent == remov)
-				{
-					updateParentChild(remov->parent, remov, smallest);
-					smallest->left = remov->left;
-					remov->left->parent = smallest;
-					if (!smallest->right)
-					{
-						smallest->right = nil_node;
-						nil_node->parent = smallest;
-					}
-				}
-				else
-				{
-					if (smallest->right)
-					{
-						smallest->right->parent = smallest->parent;
-						smallest->parent->left = smallest->right;
-					}
-					updateParentChild(remov->parent, remov, smallest);
-					smallest->left = remov->left;
-					remov->left->parent = smallest;
-					smallest->right = remov->right;
-					remov->right->parent = smallest;
-				}
-				deleted_colour = smallest->colour;
-				smallest->colour = remov->colour;
-				removeNode(remov);
-			}
+			else // 2 children
+				is_nill = eraseForTwoChildren(&remov, &node_move_up, &nil_node, &deleted_colour);
 			if (deleted_colour == BLACK)
 				fixViolationErase(node_move_up);
 			if (is_nill)
@@ -420,7 +392,7 @@ namespace ft
 			}
 			node*	sibling = getSibling(moved);
 
-			if (sibling->colour == RED) //sibling is red
+			if (sibling->colour == RED) //sibling is red case 2
 			{
 				sibling->colour = BLACK;
 				moved->parent->colour = RED;
@@ -430,15 +402,15 @@ namespace ft
 					rotateRight(moved->parent);
 				sibling = getSibling(moved);
 			}
-			if (isNilorBlack(sibling->left) && isNilorBlack(sibling->right))
+			if (isNilorBlack(sibling->left) && isNilorBlack(sibling->right)) // sibling black
 			{
 				sibling->colour = RED;
-				if (moved->parent->colour == RED)
+				if (moved->parent->colour == RED) // case 0
 					moved->parent->colour = BLACK;
 				else
-					fixViolationErase(moved->parent);
+					fixViolationErase(moved->parent); //case 1
 			}
-			else //sibling has red child
+			else //sibling has red child case 0
 			{
 				bool	node_left = (moved == moved->parent->left);
 				if (node_left && isNilorBlack(sibling->right))

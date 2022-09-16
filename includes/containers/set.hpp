@@ -125,8 +125,10 @@ namespace ft
 		size_type								count(const Key& key) const {return _tree.find(key) ? 1 : 0;}
 		iterator								find(const Key& key) {return iterator(_tree.find(key), &_tree);}
 		const_iterator							find(const Key& key) const{return const_iterator(find(key));}
-		ft::pair<iterator,iterator>				equal_range(const Key& key) {return ft::make_pair(lower_bound(key), upper_bound(key));}
-		ft::pair<const_iterator,const_iterator>	equal_range(const Key& key) const {return ft::make_pair(lower_bound(key), upper_bound(key));}
+		ft::pair<iterator,iterator>				equal_range(const Key& key)
+			{return ft::make_pair(lower_bound(key), upper_bound(key));}
+		ft::pair<const_iterator,const_iterator>	equal_range(const Key& key) const
+			{return ft::make_pair(lower_bound(key), upper_bound(key));}
 		iterator								lower_bound(const Key& key)
 		{
 			node_*	node = _tree.root();
@@ -170,7 +172,7 @@ namespace ft
 	bool	operator!=(const set<Key,Compare,Alloc>& lhs, const set<Key,Compare,Alloc>& rhs) {return !(lhs == rhs);}
 
 	template<class Key, class Compare, class Alloc>
-	bool	operator< (const set<Key,Compare,Alloc>& lhs, const set<Key,Compare,Alloc>& rhs) //done
+	bool	operator< (const set<Key,Compare,Alloc>& lhs, const set<Key,Compare,Alloc>& rhs)
 	{
 		return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 	}
@@ -187,5 +189,4 @@ namespace ft
 	template<class Key, class Compare, class Alloc>
 	void	swap(set<Key,Compare,Alloc>& lhs, set<Key,Compare,Alloc>& rhs) {lhs.swap(rhs);}
 }
-
 #endif

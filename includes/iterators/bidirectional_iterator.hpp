@@ -10,6 +10,7 @@ namespace ft
 	{
 
 	public: // typedefs
+
 		typedef T													value_type;
 		typedef std::bidirectional_iterator_tag						iterator_category;
 		typedef long												difference_type;
@@ -19,6 +20,7 @@ namespace ft
 		typedef ft::node<value_type>								node;
 
 	private: // Variables
+
 		node* 									_ptr;
 		const	ft::tree<value_type>*			_tree;
 
@@ -39,10 +41,10 @@ namespace ft
 		}
 
 		//friend keyword for a couple of these functions because they are nonmember overloads
-		friend bool					operator==(const bidirectional_iterator& lhs, const bidirectional_iterator& rhs) {return lhs._ptr == rhs._ptr;}
-		friend bool					operator!=(const bidirectional_iterator& lhs, const bidirectional_iterator& rhs) {return !(lhs._ptr == rhs._ptr);}
+		friend bool				operator==(const bidirectional_iterator& lhs, const bidirectional_iterator& rhs) {return lhs._ptr == rhs._ptr;}
+		friend bool				operator!=(const bidirectional_iterator& lhs, const bidirectional_iterator& rhs) {return !(lhs._ptr == rhs._ptr);}
 
-		bidirectional_iterator&		operator++(void)
+		bidirectional_iterator&	operator++(void)
 		{
 			// node*	node = _ptr;
 			if (_ptr == NULL)
@@ -68,8 +70,8 @@ namespace ft
 			}
 			return *this;
 		}
-		bidirectional_iterator		operator++(int)	{bidirectional_iterator	copy(*this); ++(*this); return copy;}
-		bidirectional_iterator&		operator--(void)
+		bidirectional_iterator	operator++(int)	{bidirectional_iterator	copy(*this); ++(*this); return copy;}
+		bidirectional_iterator&	operator--(void)
 		{
 			node*	node = _ptr;
 			if (_ptr == NULL)
@@ -96,15 +98,13 @@ namespace ft
 			_ptr = node;
 			return *this;
 		}
-		bidirectional_iterator		operator--(int) {bidirectional_iterator	copy(*this); --(*this); return copy;}
+		bidirectional_iterator	operator--(int) {bidirectional_iterator	copy(*this); --(*this); return copy;}
 
-		reference					operator*() const {return *_ptr->data;}
-		reference					operator*() {return *_ptr->data;}
+		reference				operator*() const {return *_ptr->data;}
+		reference				operator*() {return *_ptr->data;}
 
-		pointer						operator->() const {return _ptr->data;}
-		pointer						operator->() {return _ptr->data;}
-
+		pointer					operator->() const {return _ptr->data;}
+		pointer					operator->() {return _ptr->data;}
 	};
 }
-
 #endif

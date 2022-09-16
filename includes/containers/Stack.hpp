@@ -17,15 +17,15 @@ namespace ft
 		typedef typename Container::reference		reference;
 		typedef typename Container::const_reference	const_reference;
 
-	protected:
+	protected: // variables
+
 		Container	c;
 
-	public:
+	public: // member functions
 
 		explicit	stack(const Container& cont = Container()) : c(cont) {}
-
 					stack(const stack& other) {*this = other;} // copy //done
-		
+
 					~stack() {}
 
 		stack& 		operator=(const stack& other) //done
@@ -52,12 +52,11 @@ namespace ft
 		friend bool operator<(const stack<T2,Container_>& lhs, const stack<T2,Container_>& rhs);
 	};
 
-	template <class T, class Container> bool operator==(const stack<T,Container>& lhs, const stack<T,Container>& rhs) {return lhs.c == rhs.c;}
-	template <class T, class Container> bool operator!=(const stack<T,Container>& lhs, const stack<T,Container>& rhs) {return !(lhs == rhs);} //done
-	template <class T, class Container> bool operator< (const stack<T,Container>& lhs, const stack<T,Container>& rhs) {return lhs.c < rhs.c;}
-	template <class T, class Container> bool operator<=(const stack<T,Container>& lhs, const stack<T,Container>& rhs) {return (!(rhs < lhs));} //done
-	template <class T, class Container> bool operator> (const stack<T,Container>& lhs, const stack<T,Container>& rhs) {return (rhs < lhs);} //done
-	template <class T, class Container> bool operator>=(const stack<T,Container>& lhs, const stack<T,Container>& rhs) {return (!(lhs < rhs));} //done
+	template <class T, class C> bool operator==(const stack<T,C>& lhs, const stack<T,C>& rhs) {return lhs.c == rhs.c;}
+	template <class T, class C> bool operator!=(const stack<T,C>& lhs, const stack<T,C>& rhs) {return !(lhs == rhs);}
+	template <class T, class C> bool operator< (const stack<T,C>& lhs, const stack<T,C>& rhs) {return lhs.c < rhs.c;}
+	template <class T, class C> bool operator<=(const stack<T,C>& lhs, const stack<T,C>& rhs) {return (!(rhs < lhs));}
+	template <class T, class C> bool operator> (const stack<T,C>& lhs, const stack<T,C>& rhs) {return (rhs < lhs);}
+	template <class T, class C> bool operator>=(const stack<T,C>& lhs, const stack<T,C>& rhs) {return (!(lhs < rhs));}
 }
-
 #endif

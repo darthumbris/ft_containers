@@ -31,7 +31,7 @@ namespace ft
 		typedef ft::reverse_iterator<iterator>										reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator>								const_reverse_iterator;
 
-	private:
+	private: // private member functions
 
 		class value_compare
 		{
@@ -47,9 +47,6 @@ namespace ft
 				bool operator() (const value_type& x, const value_type& y) const {return _comp(x.first, y.first);}
 		};
 
-		typedef redblacktree<value_type, allocator_type, value_compare>	tree_type;
-		typedef ft::node<value_type>									node_;
-
 		//Exception
 		class out_of_range: public std::exception {
 		private:
@@ -58,13 +55,19 @@ namespace ft
 			out_of_range(const char* msg) : _msg(msg) {}
 			virtual const char* what() const throw() {return _msg;}
 		};
+	
+	private: //private typedefs
 
-		//variables
+		typedef redblacktree<value_type, allocator_type, value_compare>	tree_type;
+		typedef ft::node<value_type>									node_;
+
+	private: //variables	
+
 		tree_type		_tree;
 		allocator_type	_alloc;
 		key_compare		_cmp;
 
-	public: // Member Functions
+	public: // public Member Functions
 
 		explicit map (const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) // empty
 			: _tree(alloc, value_compare(comp)), _alloc(alloc), _cmp(comp) {}
@@ -121,7 +124,6 @@ namespace ft
 
 		// Modifiers
 		void						clear() {_tree.clear();}
-
 		ft::pair<iterator, bool>	insert(const value_type& value)
 		{
 			bool	succes = _tree.insert(value);
@@ -226,5 +228,4 @@ namespace ft
 	template<class Key, class T, class Compare, class Alloc>
 	void	swap(map<Key,T,Compare,Alloc>& lhs, map<Key,T,Compare,Alloc>& rhs) {lhs.swap(rhs);}
 }
-
 #endif

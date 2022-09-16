@@ -17,6 +17,7 @@ namespace ft
         RED
     };
 
+	// node used for the redblack binary search tree
     template<typename value_type>
     struct node
     {
@@ -30,13 +31,15 @@ namespace ft
         node*       right;
     };
 
+
+	// Inheritance class for use in the bidirectional iterator (tree doesnt need the value_compare and allocator)
 	template<class T>
 	class tree
 	{
 	public:
-		typedef T								value_type;
-		typedef	size_t							size_type;
-		typedef ft::node<value_type>			node;	
+		typedef T						value_type;
+		typedef	size_t					size_type;
+		typedef ft::node<value_type>	node;	
 
 	public:
 		virtual ~tree(){}
@@ -46,7 +49,7 @@ namespace ft
 		virtual size_type	size() const = 0;
 	};
 
-
+	// Binary search tree using the redblack tree method
 	template<class T, class Alloc, class Compare>
 	class redblacktree : public tree<T>
 	{
@@ -56,17 +59,18 @@ namespace ft
 		typedef	unsigned long									size_type;
 		typedef long											difference_type;
 		typedef T												value_type;
-		typedef typename ft::tree<T>::node								node;
+		typedef typename ft::tree<T>::node						node;
 		typedef typename Alloc::template rebind<node>::other	node_allocator_type;
 
-	private:
+	private: //variables
+
 		node*				_root; //root of the tree
 		allocator_type		_alloc; //alloc for the data of the nodes
 		node_allocator_type	_node_alloc; //alloc for the nodes itself
 		size_type			_size; //size of the tree
 		Compare				_comp; //Compare class used to compare values
 
-	public:
+	public: // public Member functions
 
 		redblacktree(Alloc alloc, Compare compare) : _root(NULL), _alloc(alloc), _size(0), _comp(compare) {}
 		redblacktree() : _root(NULL), _alloc(), _size(0), _comp() {}
@@ -74,14 +78,12 @@ namespace ft
 
 		redblacktree&	operator=(const redblacktree& other)
 		{
-			// _root = other._root;
 			_alloc = other._alloc;
 			_node_alloc = other._node_alloc;
 			_size = other._size;
 			_comp = other._comp;
 			return *this;
 		}
-
 		node*		root() {return _root;}
 		
 		// Capacity
@@ -155,7 +157,7 @@ namespace ft
 			return upper;
 		}
 
-	private:
+	private: //private member functions
 
 		// Insertions
 		node*	newLeaf(node* root, value_type& value)
@@ -228,6 +230,7 @@ namespace ft
 			}
 		}
 
+		//TODO clean this up (maybe split up)
 		/*
 		* 2 cases:
 		* 0. 0 and 1 child simple deletion
@@ -311,7 +314,6 @@ namespace ft
 		// This actually deallocates the node
 		void	removeNode(node *remov)
 		{
-			// std::cout << "node to be removed: " << *remov->data << std::endl;
 			_alloc.destroy(remov->data);
 			_alloc.deallocate(remov->data, 1);
 			_node_alloc.destroy(remov);
@@ -350,6 +352,7 @@ namespace ft
 				new_child->parent = parent;
 		}
 
+		//TODO clean this up
 		/*After inserting recolour and rotate tree to fix violations
 		* 4 scenarios:
 		* 0. node added is root this case is already handled in the insertleaf function
@@ -401,6 +404,7 @@ namespace ft
 			}
 		}
 
+		//TODO clean this up
 		/*After deleting recolour and rotate tree to fix violations
 		* 3 scenarios based on the sibling
 		* 0. sibling is black and has a red child
@@ -565,11 +569,7 @@ namespace ft
 				return parent->left;
 		}
 
-		bool	isNilorBlack(node* root)
-		{
-			return (root == NULL || root->colour == BLACK);
-		}
+		bool	isNilorBlack(node* root) {return (root == NULL || root->colour == BLACK);}
 	};
 }
-
 #endif

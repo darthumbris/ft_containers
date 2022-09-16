@@ -60,13 +60,6 @@ int rdm_val<int>()
     return (int(std::rand() % 1024));
 }
 
-// template <>
-// ft::_const_test<int>
-// rdm_val<ft::_const_test<int> >()
-// {
-//     return (ft::_const_test<int>(rdm_val<int>()));
-// }
-
 template <>
 std::pair<const int, std::string>
 rdm_val<std::pair<const int, std::string> >()
@@ -80,20 +73,6 @@ rdm_val<ft::pair<const int, std::string> >()
 {
     return ft::pair<const int, std::string>(rdm_val<int>(), rdm_val<std::string>());
 }
-
-// template <>
-// ft::pair<const ft::_const_test<int>, ft::_const_test<std::string> >
-// rdm_val<ft::pair<const ft::_const_test<int>, ft::_const_test<std::string> > >()
-// {
-//     return ft::pair<const ft::_const_test<int>, std::string>(rdm_val<int>(), rdm_val<std::string>());
-// }
-
-// template <>
-// std::pair<const ft::_const_test<int>, ft::_const_test<std::string> >
-// rdm_val<std::pair<const ft::_const_test<int>,ft::_const_test<std::string> > >()
-// {
-//     return std::pair<const ft::_const_test<int>, std::string>(rdm_val<int>(), rdm_val<std::string>());
-// }
 
 
 //TODO make some proper tests

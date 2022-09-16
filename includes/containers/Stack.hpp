@@ -24,11 +24,11 @@ namespace ft
 	public: // member functions
 
 		explicit	stack(const Container& cont = Container()) : c(cont) {}
-					stack(const stack& other) {*this = other;} // copy //done
+					stack(const stack& other) {*this = other;} // copy
 
 					~stack() {}
 
-		stack& 		operator=(const stack& other) //done
+		stack& 		operator=(const stack& other)
 		{
 			c = other.c;
 			return *this;

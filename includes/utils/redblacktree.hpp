@@ -202,7 +202,7 @@ namespace ft
 
 		// Deletions
 		// Function for erasing a node in the tree
-		void	eraseNode(const value_type& value, node* node) //done
+		void	eraseNode(const value_type& value, node* node)
 		{			
 			if (_root != NULL)
 			{
@@ -235,7 +235,7 @@ namespace ft
 		* the inorder predecessor R always has at most one child. This reduces this deletion to case 0.
 		*/
 		// This erases the node found in the eraseNode function
-		void	eraseMatch(node *parent, node *remov) //done
+		void	eraseMatch(node *parent, node *remov)
 		{
 			node*	node_move_up = remov;
 			colour	deleted_colour = remov->colour;
@@ -309,7 +309,7 @@ namespace ft
 		}
 
 		// This actually deallocates the node
-		void	removeNode(node *remov) //done
+		void	removeNode(node *remov)
 		{
 			// std::cout << "node to be removed: " << *remov->data << std::endl;
 			_alloc.destroy(remov->data);
@@ -320,7 +320,7 @@ namespace ft
 		}
 
 		// This function deallocates the whole tree
-		void	eraseTree(node* root) //done
+		void	eraseTree(node* root)
 		{
 			if (root != NULL)
 			{
@@ -338,7 +338,7 @@ namespace ft
 		// Reordering
 
 		// Function updates the parent of the old_child with the new_child
-		void	updateParentChild(node* parent, node* old_child, node* new_child) //done
+		void	updateParentChild(node* parent, node* old_child, node* new_child)
 		{
 			if (parent == NULL)
 				_root = new_child;
@@ -357,7 +357,7 @@ namespace ft
 		* 2. node added's uncle is black (triangle) -> rotate parent
 		* 3. node added's uncle is black (line) -> rotate grandparent and recolour grandparent and parent after rotation
 		*/
-		void	fixViolationInsert(node* root) //done
+		void	fixViolationInsert(node* root)
 		{
 			if (root->parent && root->parent->colour == BLACK) // no fixing needed
 				return;
@@ -495,7 +495,7 @@ namespace ft
 
 		// Lookup
 		//searches from a point on the tree for the value
-		node*	findNode(node* root, const value_type& value) const //done
+		node*	findNode(node* root, const value_type& value) const
 		{
 			if (root != NULL)
 			{
@@ -511,7 +511,7 @@ namespace ft
 		}
 
 		// Function to find the inorder_successor (smallest value in right side of the subtree)
-		node*	findSmallest(node* root) const //done
+		node*	findSmallest(node* root) const
 		{
 			node*	current = root;
 		
@@ -520,7 +520,7 @@ namespace ft
 			return current;
 		}
 
-		node*	findLargest(node* root) const //done
+		node*	findLargest(node* root) const
 		{
 			node*	current = root;
 
@@ -530,7 +530,7 @@ namespace ft
 		}
 		
 		// checks if the two values are equal using the compare
-		bool	isEqual(const value_type& a, const value_type& b) const //done
+		bool	isEqual(const value_type& a, const value_type& b) const
 		{
 			if (_comp(a, b))
 				return false;

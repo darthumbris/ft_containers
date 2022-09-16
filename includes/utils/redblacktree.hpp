@@ -1,9 +1,6 @@
 #ifndef REDBLACKTREE_HPP
 # define REDBLACKTREE_HPP
 
-// # include "node.hpp"
-// # include "Tree.hpp"
-
 /*
  * notes: 
  * - https://www.codesdope.com/course/data-structures-red-black-trees-insertion/
@@ -33,9 +30,25 @@ namespace ft
         node*       right;
     };
 
+	template<class T>
+	class tree
+	{
+	public:
+		typedef T								value_type;
+		typedef	size_t							size_type;
+		typedef ft::node<value_type>			node;	
+
+	public:
+		virtual ~tree(){}
+		
+		virtual node*		findSmallest() const = 0;
+		virtual node*		findLargest() const = 0;
+		virtual size_type	size() const = 0;
+	};
+
 
 	template<class T, class Alloc, class Compare>
-	class redblacktree
+	class redblacktree : public tree<T>
 	{
 	public: //typedefs
 
@@ -43,7 +56,7 @@ namespace ft
 		typedef	unsigned long									size_type;
 		typedef long											difference_type;
 		typedef T												value_type;
-		typedef ft::node<value_type>							node;
+		typedef typename ft::tree<T>::node								node;
 		typedef typename Alloc::template rebind<node>::other	node_allocator_type;
 
 	private:
@@ -61,7 +74,7 @@ namespace ft
 
 		redblacktree&	operator=(const redblacktree& other)
 		{
-			_root = other._root;
+			// _root = other._root;
 			_alloc = other._alloc;
 			_node_alloc = other._node_alloc;
 			_size = other._size;
@@ -199,14 +212,14 @@ namespace ft
 				{
 					if (_comp(*(node->data), value) && node->right != NULL)
 					{
-						if (isEqual(*node->right->data, value))
+						if (isEqual(*(node->right->data), value))
 							eraseMatch(node, node->right);
 						else
 							eraseNode(value, node->right);
 					}
 					else if (_comp(value, *(node->data)) && node->left != NULL)
 					{
-						if (isEqual(*node->left->data, value))
+						if (isEqual(*(node->left->data), value))
 							eraseMatch(node, node->left);
 						else
 							eraseNode(value, node->left);
@@ -298,6 +311,7 @@ namespace ft
 		// This actually deallocates the node
 		void	removeNode(node *remov) //done
 		{
+			// std::cout << "node to be removed: " << *remov->data << std::endl;
 			_alloc.destroy(remov->data);
 			_alloc.deallocate(remov->data, 1);
 			_node_alloc.destroy(remov);
@@ -409,7 +423,8 @@ namespace ft
 				if (moved == moved->parent->left)
 					rotateLeft(moved->parent);
 				else
-					rotateRight(moved->parent);	
+					rotateRight(moved->parent);
+				sibling = getSibling(moved);
 			}
 			if (isNilorBlack(sibling->left) && isNilorBlack(sibling->right))
 			{
@@ -488,7 +503,8 @@ namespace ft
 					return root;
 				else if (_comp(value, *(root->data)))
 					return findNode(root->left, value);
-				return findNode(root->right, value);
+				else
+					return findNode(root->right, value);
 			}
 			else
 				return NULL;

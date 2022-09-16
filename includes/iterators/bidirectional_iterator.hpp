@@ -1,9 +1,11 @@
 #ifndef BIDIRECTIONAL_ITERATOR_HPP
 # define BIDIRECTIONAL_ITERATOR_HPP
 
+# include "../utils/redblacktree.hpp"
+
 namespace ft
 {
-	template <class T, class Compare, class Alloc, class Pointer = T*, class Reference = T&>
+	template <class T, class Pointer = T*, class Reference = T&>
 	class bidirectional_iterator
 	{
 
@@ -13,16 +15,17 @@ namespace ft
 		typedef long												difference_type;
 		typedef Pointer												pointer;
 		typedef Reference											reference;
-		typedef bidirectional_iterator<T, Compare, Alloc, const T*, const T&>	const_iterator_type;
+		typedef bidirectional_iterator<T, const T*, const T&>		const_iterator_type;
+		typedef ft::node<value_type>								node;
 
 	private: // Variables
-		pointer 												_ptr;
-		const	redblacktree<value_type, Alloc, Compare>*		_tree;
+		node* 									_ptr;
+		const	ft::tree<value_type>*			_tree;
 
 	public: // Member Functions
 
 		bidirectional_iterator() : _ptr(NULL) {} //default
-		bidirectional_iterator(pointer ptr, const redblacktree<value_type, Alloc, Compare>* rbtree = NULL) : _ptr(ptr), _tree(rbtree) {} 
+		bidirectional_iterator(node* ptr, const ft::tree<value_type>* tree = NULL) : _ptr(ptr), _tree(tree) {} 
 		bidirectional_iterator(const bidirectional_iterator& src) : _ptr(src._ptr), _tree(src._tree) {} //copy
 		~bidirectional_iterator() {}
 
@@ -41,46 +44,65 @@ namespace ft
 
 		bidirectional_iterator&		operator++(void)
 		{
-			ft::node<value_type>	*node = _tree->find(*_ptr);
-			if (node)
+			// node*	node = _ptr;
+			if (_ptr == NULL)
 			{
-				ft::node<value_type>	*successor = _tree->lower_bound(*_ptr);
-				if (successor)
-					_ptr = successor->data;
-				else
-					_ptr =  NULL;
+				_ptr = _tree->findSmallest();
+				return *this;
+			}
+			if (_ptr->right)
+			{
+				_ptr = _ptr->right;
+				while (_ptr->left)
+					_ptr = _ptr->left;
+			}
+			else
+			{
+				ft::node<value_type>* temp = _ptr;
+				_ptr = _ptr->parent;
+				while (_ptr && _ptr->left != temp)
+				{
+					temp = _ptr;
+					_ptr = _ptr->parent;
+				}
 			}
 			return *this;
 		}
 		bidirectional_iterator		operator++(int)	{bidirectional_iterator	copy(*this); ++(*this); return copy;}
 		bidirectional_iterator&		operator--(void)
 		{
-			ft::node<value_type>	*node = NULL;
-			if (!_ptr)
+			node*	node = _ptr;
+			if (_ptr == NULL)
 			{
-				node = _tree->findLargest();
-				if (node)
-					_ptr =  node->data;
+				_ptr = _tree->findLargest();
 				return *this;
 			}
-			node = _tree->find(*_ptr);
-			if (node)
+			if (node->left)
 			{
-				ft::node<value_type>	*pred = _tree->upper_bound(*_ptr);
-				if (pred)
-					_ptr =  pred->data;
-				else
-					_ptr =  NULL;
+				node = node->left;
+				while (node->right)
+					node = node->right;
 			}
+			else
+			{
+				ft::node<value_type>* temp = node;
+				node = node->parent;
+				while (node && node->right != temp)
+				{
+					temp = node;
+					node = node->parent;
+				}
+			}
+			_ptr = node;
 			return *this;
 		}
 		bidirectional_iterator		operator--(int) {bidirectional_iterator	copy(*this); --(*this); return copy;}
 
-		reference					operator*() const {return *_ptr;}
-		reference					operator*() {return *_ptr;}
+		reference					operator*() const {return *_ptr->data;}
+		reference					operator*() {return *_ptr->data;}
 
-		pointer						operator->() const {return _ptr;}
-		pointer						operator->() {return _ptr;}
+		pointer						operator->() const {return _ptr->data;}
+		pointer						operator->() {return _ptr->data;}
 
 	};
 }

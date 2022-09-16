@@ -5,6 +5,7 @@
 	#include <map>
 	#include <stack>
 	#include <vector>
+	#include <set>
 	namespace ft = std;
 #else
 	#include "containers/map.hpp"

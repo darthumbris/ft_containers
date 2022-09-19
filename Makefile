@@ -7,7 +7,7 @@ SRC_DIR = src
 OBJ_DIR = obj
 INC_DIR = includes
 
-SRC =	main.cpp \
+SRC =	subject_main.cpp \
         
 
 SRC_EXT = cpp

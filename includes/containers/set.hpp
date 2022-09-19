@@ -66,6 +66,8 @@ namespace ft
 
 		allocator_type			get_allocator() const {return _alloc;}
 
+		void					printSetTree() {_tree.printTree();}
+
 		// iterators
 		iterator				begin() {return iterator(_tree.findSmallest(), &_tree);}
 		const_iterator			begin() const {return const_iterator(_tree.findSmallest(), &_tree);}

@@ -135,6 +135,9 @@ namespace ft
 		node*	findLargest() const {return findLargest(_root);}
 		node*	findSmallest() const {return findSmallest(_root);}
 
+		//Visualizer for checking the redblacktree
+		void	printTree() {printNodes(_root, -10);}
+
 	private: //private member functions
 
 		// Insertions
@@ -555,6 +558,33 @@ namespace ft
 		}
 
 		bool	isNilorBlack(node* root) {return (root == NULL || root->colour == BLACK);}
+
+		void	printNodes(node* parent, int space)
+		{
+			if (parent != NULL)
+			{
+				space = space + 10;
+				printNodes(parent->right, space);
+				std::cout << std::endl;
+				for (int i = 0; i < space; i++)
+					std::cout << " ";
+				if (parent == _root)
+					std::cout << "R]";
+				if (parent->colour == RED)
+					std::cout << "\033[31m" << *parent->data << "\033[0m" << std::endl;
+				else
+					std::cout << "\033[37m" << *parent->data << "\033[0m" << std::endl;
+				printNodes(parent->left, space);
+			}
+			else
+			{
+				space = space + 10;
+				std::cout << std::endl;
+				for (int i = 0; i < space; i++)
+					std::cout << " ";
+				std::cout << "\033[34m" << "NIL" << "\033[0m" << std::endl;
+			}
+		}
 	};
 }
 #endif

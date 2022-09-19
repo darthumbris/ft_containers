@@ -4,6 +4,7 @@
 # include <memory>
 # include "../iterators/reverse_iterator.hpp"
 # include "../utils/utils.hpp"
+# include <algorithm>
 
 namespace ft
 {

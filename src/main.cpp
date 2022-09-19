@@ -1,83 +1,77 @@
-#include "containers/vector.hpp"
-#include <vector>
-#include <iostream>
-#include <map>
-#include <set>
-// #include "containers/map.hpp"
-#include "containers/set.hpp"
-#include "utils/redblacktree.hpp"
-#include <iterator>
+#include "test_header.hpp"
 
-template <typename _Type>
-_Type rdm_val()
+template <typename _vector>
+void	test_vector(int seed, std::ofstream& test_file);
+void	test_map(int seed, std::ofstream& test_file);
+void	test_stack(int seed, std::ofstream& test_file);
+void	test_set(int seed, std::ofstream& test_file);
+
+enum	containers
 {
-    return (_Type());
-}
-/**
- * @brief Generate a random string
- */
-template <>
-std::string rdm_val<std::string>()
+	VECTOR,
+	MAP,
+	STACK,
+	SET,
+	INVALID
+};
+
+int get_container(std::string& container)
 {
-    std::string default_val[24] =
-    {
-        "Take me with you.",
-        "It's four in the morning. What are you doing?",
-        "Why are you being so stubborn?",
-        "I just wanted to do something good for once.",
-        "How many times have I told you? You can't visit me here.",
-        "I hope to repay your kindness someday.",
-        "How did you get this scar?",
-        "I thought you... I saw you get shot.",
-        "I bought two. Here.",
-        "I don't know. Shut up. I'm not blushing.",
-        "Anything to eat around here?",
-        "You want me? Here I am.",
-        "You know you aren't allowed in here, right?",
-        "Just let me do this for you.",
-        "This isn't just about you. It's about what's best for all of us.",
-        "Could you be happy here with me?",
-        "Life is about more than just surviving.",
-        "What was that for?",
-        "Is... that my shirt you're wearing?",
-        "Why can't you let me in? What are you so afraid of?",
-        "Give me one good reason why I should believe you.",
-        "I don't know how you do this every day...",
-        "Your plan's gonna get us all killed, and you know it.",
-        "I'm not even going to pretend to understand what you're talking about."
-    };
-    return (std::string(default_val[std::rand() % 18]));
+	if (container == "vector")
+		return VECTOR;
+	else if (container == "map")
+		return MAP;
+	else if (container == "stack")
+		return STACK;
+	else if (container == "set")
+		return SET;
+	return INVALID;
 }
 
-
-/**
- * @brief Generate a random UINT
- *
- */
-template <>
-int rdm_val<int>()
+int main(int argc, char** argv)
 {
-    return (int(std::rand() % 1024));
-}
+	if (argc != 3)
+	{
+		std::cerr << "Usage: ./test seed container" << std::endl;
+		std::cerr << "Provide a seed and container please" << std::endl;
+		return 1;
+	}
+	const int	seed = atoi(argv[1]);
+	std::string	container = argv[2];
 
-template <>
-std::pair<const int, std::string>
-rdm_val<std::pair<const int, std::string> >()
-{
-    return std::pair<const int, std::string>(rdm_val<int>(), rdm_val<std::string>());
-}
+	std::ofstream	test_file(output, std::ios_base::trunc);
 
-template <>
-ft::pair<const int, std::string>
-rdm_val<ft::pair<const int, std::string> >()
-{
-    return ft::pair<const int, std::string>(rdm_val<int>(), rdm_val<std::string>());
-}
-
-
-//TODO make some proper tests
-int main(void)
-{
-	
+	int	current_seed = seed;
+	for (int i = 0; i < MAX_SEED; i++)
+	{
+		switch (get_container(container))
+		{
+		case VECTOR:
+			if (i % 2 == 0)
+			{
+				std::cout << "Testing string vector" << std::endl;
+				test_vector<ft::vector<std::string> >(current_seed, test_file);
+			}
+			else
+			{
+				std::cout << "Testing int vector" << std::endl;
+				test_vector<ft::vector<int> >(current_seed, test_file);
+			}
+			break;
+		case MAP:
+			test_map(current_seed, test_file);
+			break;
+		case STACK:
+			test_stack(current_seed, test_file);
+			break;
+		case SET:
+			test_set(current_seed, test_file);
+			break;
+		default:
+			std::cerr << "container should be: vector, map, stack or set. Instead got: " << container << std::endl;
+			return 1;
+		}
+		current_seed++;
+	}
 	return 0;
 }

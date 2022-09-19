@@ -93,7 +93,7 @@ namespace ft
 
 	public: //public member functions
 
-		explicit	vector(const allocator_type& alloc = allocator_type()) // default    
+		explicit	vector(const allocator_type& alloc = allocator_type()) // default
 						: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0) {} 
 
 		explicit	vector(size_type count, const T& value = T(), const Allocator& alloc = Allocator()) // fill

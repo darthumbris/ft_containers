@@ -30,7 +30,7 @@ namespace ft
 
 		~iterator() {}
 
-		operator const_iterator_type() const {return const_iterator_type(_ptr);}
+		operator	const_iterator_type() const {return const_iterator_type(_ptr);}
 
 		iterator&				operator=(const iterator& rhs) {_ptr = rhs._ptr; return *this;}
 
@@ -43,7 +43,7 @@ namespace ft
 		friend bool		operator!=(const iterator& lhs, const iterator& rhs) {return !(lhs.base() == rhs.base());}
 
 		iterator				operator+(const int& n) const {iterator copy(*this); copy._ptr += n; return copy;}
-		friend iterator 		operator+(const int& n, const iterator& a) {return a + n;}
+		friend iterator			operator+(const int& n, const iterator& a) {return a + n;}
 		iterator				operator-(const int& n) const {iterator copy(*this); copy._ptr -= n; return copy;}
 		friend difference_type	operator-(const iterator& a, const iterator& b) {return a.base() - b.base();}
 

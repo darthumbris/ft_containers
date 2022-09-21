@@ -7,7 +7,7 @@ SRC_DIR = src
 OBJ_DIR = obj
 INC_DIR = includes
 
-SRC =	subject_main.cpp \
+SRC =	main.cpp \
         
 
 SRC_EXT = cpp
@@ -40,7 +40,7 @@ ifeq ($(DEBUG),2)
 endif
 
 ifeq ($(STD_MODE),1)
-	CXXFLAGS += -D STD=1
+	CXXFLAGS += -D STD_TEST=1
     COM_STRING = "Compiling[STD_MODE]"
 endif
 

@@ -1,10 +1,10 @@
 #include "test_header.hpp"
+#include "test_vector.cpp"
 
-template <typename _vector>
-void	test_vector(int seed, std::ofstream& test_file);
-void	test_map(int seed, std::ofstream& test_file);
-void	test_stack(int seed, std::ofstream& test_file);
-void	test_set(int seed, std::ofstream& test_file);
+
+// void	test_map(int seed, std::ofstream& test_file);
+// void	test_stack(int seed, std::ofstream& test_file);
+// void	test_set(int seed, std::ofstream& test_file);
 
 enum	containers
 {
@@ -47,26 +47,26 @@ int main(int argc, char** argv)
 		switch (get_container(container))
 		{
 		case VECTOR:
-			if (i % 2 == 0)
-			{
+			// if (i % 2 == 0)
+			// {
 				std::cout << "Testing string vector" << std::endl;
 				test_vector<ft::vector<std::string> >(current_seed, test_file);
-			}
-			else
-			{
+			// }
+			// else
+			// {
 				std::cout << "Testing int vector" << std::endl;
 				test_vector<ft::vector<int> >(current_seed, test_file);
-			}
+			// }
 			break;
-		case MAP:
-			test_map(current_seed, test_file);
-			break;
-		case STACK:
-			test_stack(current_seed, test_file);
-			break;
-		case SET:
-			test_set(current_seed, test_file);
-			break;
+		// case MAP:
+		// 	test_map(current_seed, test_file);
+		// 	break;
+		// case STACK:
+		// 	test_stack(current_seed, test_file);
+		// 	break;
+		// case SET:
+		// 	test_set(current_seed, test_file);
+		// 	break;
 		default:
 			std::cerr << "container should be: vector, map, stack or set. Instead got: " << container << std::endl;
 			return 1;

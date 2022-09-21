@@ -14,10 +14,10 @@
 	namespace ft = std;
 	std::string	output = "test/out_std";
 #else
-	#include "../containers/vector.hpp"
-	#include "../containers/map.hpp"
-	#include "../containers/set.hpp"
-	#include "../containers/stack.hpp"
+	#include "../includes/containers/vector.hpp"
+	#include "../includes/containers/map.hpp"
+	#include "../includes/containers/set.hpp"
+	#include "../includes/containers/stack.hpp"
 	std::string	output = "test/out_ft";
 #endif
 

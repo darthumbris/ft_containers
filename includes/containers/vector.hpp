@@ -164,7 +164,10 @@ namespace ft
 				if (_alloc_size)
 					_alloc.deallocate(_array, _alloc_size);
 				_size = other._size;
-				_alloc_size = other._alloc_size;
+				// if (_size == 0)
+					_alloc_size = _size;
+				// else
+					// _alloc_size = other._alloc_size;
 				_alloc = other._alloc;
 				if (_alloc_size)
 					_array = _alloc.allocate(other._alloc_size);
@@ -294,6 +297,8 @@ namespace ft
 		}
 		void					resize(size_type count, T value = T())
 		{
+			if (count == 0)
+				clear();
 			if (count <= _size)
 			{
 				for (size_type i = count; i < _size; i++)
@@ -301,7 +306,10 @@ namespace ft
 			}
 			if (count > _size)
 			{
-				increaseAllocSize(count);
+				if (count > _alloc_size && count < _alloc_size * 2)
+					increaseAllocSize(_alloc_size * 2);
+				else
+					increaseAllocSize(count);
 				for (size_type i = _size; i < count; i++)
 					_alloc.construct(_array + i, value);
 			}

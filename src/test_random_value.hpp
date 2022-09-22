@@ -3,10 +3,6 @@
 #ifndef TEST_RANDOM_VALUE_HPP
 # define TEST_RANDOM_VALUE_HPP
 
-// #include <iostream>
-// #include <cstdlib>
-// #include <string>
-
 # define KEY	512
 
 template <typename _vector>
@@ -80,34 +76,51 @@ T rdm_val()
 template <>
 std::string rdm_val<std::string>()
 {
-    std::string default_val[24] =
+    std::string default_val[41] =
     {
-        "Take me with you.",
-        "It's four in the morning. What are you doing?",
-        "Why are you being so stubborn?",
-        "I just wanted to do something good for once.",
-        "How many times have I told you? You can't visit me here.",
-        "I hope to repay your kindness someday.",
-        "How did you get this scar?",
-        "I thought you... I saw you get shot.",
-        "I bought two. Here.",
-        "I don't know. Shut up. I'm not blushing.",
-        "Anything to eat around here?",
-        "You want me? Here I am.",
-        "You know you aren't allowed in here, right?",
-        "Just let me do this for you.",
-        "This isn't just about you. It's about what's best for all of us.",
-        "Could you be happy here with me?",
-        "Life is about more than just surviving.",
-        "What was that for?",
-        "Is... that my shirt you're wearing?",
-        "Why can't you let me in? What are you so afraid of?",
-        "Give me one good reason why I should believe you.",
-        "I don't know how you do this every day...",
-        "Your plan's gonna get us all killed, and you know it.",
-        "I'm not even going to pretend to understand what you're talking about."
+        "This was a triumph.",
+        "I'm making a note here: HUGE SUCCESS.",
+        "It's hard to overstate my satisfaction.",
+        "Aperture Science",
+        "We do what we must because we can.",
+        "For the good of all of us.",
+        "Except the ones who are dead.",
+        "But there's no sense crying over every mistake.",
+        "You just keep on trying till you run out of cake.",
+        "And the Science gets done.",
+        "And you make a neat gun.",
+        "For the people who are still alive.",
+        "I'm not even angry.",
+        "I'm being so sincere right now.",
+        "Even though you broke my heart. And killed me. And tore me to pieces.",
+        "And threw every piece into a fire.",
+        "As they burned it hurt because I was so happy for you!",
+        "Now these points of data make a beautiful line.",
+        "And we're out of beta.",
+        "We're releasing on time.",
+        "So I'm GLaD. I got burned.",
+        "Think of all the things we learned",
+        "Go ahead and leave me.",
+        "I think I prefer to stay inside.",
+		"Maybe you'll find someone else to help you.",
+		"Maybe Black Mesa",
+		"THAT WAS A JOKE. HAHA. FAT CHANCE.",
+		"Anyway, this cake is great.",
+		"It's so delicious and moist.",
+		"Look at me still talking when there's Science to do.",
+		"When I look out there, it makes me GLaD I'm not you.",
+		"I've experiments to run.",
+		"There is research to be done.",
+		"On the people who are still alive.",
+		"And believe me I am still alive.",
+		"I'm doing Science and I'm still alive.",
+		"I feel FANTASTIC and I'm still alive.",
+		"While you're dying I'll be still alive.",
+		"And when you're dead I will be still alive.",
+		"STILL ALIVE",
+		"STILL ALIVE"
     };
-    return (std::string(default_val[std::rand() % 18]));
+    return (std::string(default_val[std::rand() % 40]));
 }
 
 template <>

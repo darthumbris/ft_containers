@@ -12,13 +12,13 @@
 	#include <map>
 	#include <set>
 	namespace ft = std;
-	std::string	output = "test/out_std";
+	std::string	output = "test/out_std.log";
 #else
 	#include "../includes/containers/vector.hpp"
 	#include "../includes/containers/map.hpp"
 	#include "../includes/containers/set.hpp"
 	#include "../includes/containers/stack.hpp"
-	std::string	output = "test/out_ft";
+	std::string	output = "test/out_ft.log";
 #endif
 
 #endif

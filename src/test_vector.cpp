@@ -1,14 +1,13 @@
 #include "test_random_value.hpp"
 
 
-# define VECTOR_TESTS 11
+# define VECTOR_TESTS 13
 # define MAX_TESTS	128
 # define MAX_SIZE	64
 
-// #include "test_header.hpp"
 static int	vector_test = 0;
 
-#define BASIC_TEST 0
+#define CONSTRUCTOR_TEST 0
 #define ASSIGN_OPERATOR_TEST 1
 #define COMPARE_OPERATOR_INSERT_TEST 2
 #define INSERT_TEST 3
@@ -19,6 +18,62 @@ static int	vector_test = 0;
 #define RESIZE_TEST 8
 #define SWAP_TEST 9
 #define CLEAR_TEST 10
+#define AT_DATA_TEST 11
+#define RESERVE_TEST 12
+
+template <typename _vector>
+void	test_at_and_data(_vector& x, _vector&y, std::ofstream& test_file)
+{
+	test_file << "Test: " << vector_test++;
+	test_file << " - at and operator[] and data" << std::endl;
+	if (std::rand() % 2)
+	{
+		if (!x.empty())
+		{
+			test_file << "x.at(rand()): " << std::endl;
+			test_file << x.at(std::rand() % x.size());
+			test_file << "x[rand()]: " << std::endl;
+			test_file << x[std::rand() % x.size()] << std::endl;
+			test_file << "x.data(): " << std::endl;
+			test_file << *x.data() << std::endl;
+		}
+	}
+	else
+	{
+		if (!y.empty())
+		{
+			test_file << "y.at(rand()): " << std::endl;
+			test_file << y.at(std::rand() % y.size());
+			test_file << "y[rand()]: " << std::endl;
+			test_file << y[std::rand() % y.size()] << std::endl;
+			test_file << "y.data(): " << std::endl;
+			test_file << *y.data() << std::endl;
+		}
+	}
+}
+
+template <typename _vector>
+void	test_reserve(_vector& x, _vector&y, std::ofstream& test_file)
+{
+	test_file << "Test: " << vector_test++;
+	test_file << " - at and operator[] and data" << std::endl;
+	if (std::rand() % 2)
+	{
+		test_file << "capacity before reserve: " << x.capacity() << std::endl;
+		test_file << "x.reserve(rand()): " << std::endl;
+		x.reserve(std::rand() % (MAX_SIZE * 2));
+		test_file << "capacity after reserve: " << std::endl;
+		test_file << x.capacity() << std::endl;
+	}
+	else
+	{
+		test_file << "capacity before reserve: " << y.capacity() << std::endl;
+		test_file << "y.reserve(rand()): " << std::endl;
+		y.reserve(std::rand() % (MAX_SIZE * 2));
+		test_file << "capacity after reserve: " << std::endl;
+		test_file << y.capacity() << std::endl;
+	}
+}
 
 template <typename _vector>
 void	test_clear(_vector& x, _vector&y, std::ofstream& test_file)
@@ -27,11 +82,13 @@ void	test_clear(_vector& x, _vector&y, std::ofstream& test_file)
 	test_file << " - clear" << std::endl;
 	if (std::rand() % 2)
 	{
+		test_file << "x.size before clear: " << x.size() << std::endl;
 		test_file << "x.clear():" << std::endl;
 		x.clear();
 	}
 	else
 	{
+		test_file << "y.size before clear: " << y.size() << std::endl;
 		test_file << "y.clear():" << std::endl;
 		y.clear();
 	}
@@ -106,6 +163,7 @@ void	test_erase(_vector& x, _vector&y, std::ofstream& test_file)
 	test_file << "Test: " << vector_test++;
 	test_file << " - erase" << std::endl;
 	typename _vector::iterator pos;
+	(void)y;
 	switch (std::rand() % 4)
 	{
 		case (0) :
@@ -130,6 +188,7 @@ void	test_erase(_vector& x, _vector&y, std::ofstream& test_file)
 				pos = y.begin() + (std::rand() % y.size());
 				y.erase(y.begin(), pos);
 			}
+			break ;
 	}
 }
 
@@ -227,6 +286,8 @@ void	test_insert(_vector& x, _vector&y, std::ofstream& test_file)
 				case 0:
 					test_file << "Insert test 0 insert(iterator pos, const T& value):" << std::endl;
 					test_file << *x.insert(it, rdm_val<typename _vector::value_type>()) << std::endl;
+					if (!y.empty())
+						test_file << *y.insert(y.begin(), rdm_val<typename _vector::value_type>()) << std::endl;
 					break;
 				case 1:
 					test_file << "Insert test 1 insert(iterator pos, inputIt first, inputIt last):" << std::endl;
@@ -238,11 +299,14 @@ void	test_insert(_vector& x, _vector&y, std::ofstream& test_file)
 						y.insert(y.begin(), it, x.end());
 					break;
 				case 2:
+					test_file << "capacity before: " << y.capacity() << std::endl;
+					test_file << "size before: " << y.size() << std::endl;
 					test_file << "Insert test 2 insert(iterator pos, size_type count, const T& value):" << std::endl;
 					if (!y.empty())
 						y.insert(y.begin(), (std::rand() % y.size()), rdm_val<typename _vector::value_type>());
 					else
 						y.insert(y.begin(), std::rand() % 5, rdm_val<typename _vector::value_type>());
+					break;
 			}
 		}
 		catch(const std::exception& e)
@@ -298,7 +362,7 @@ void	test_constructors(_vector& x, _vector&y, std::ofstream& test_file)
 	test_file << " (Constructor)" << std::endl;
 	x = _vector(std::rand() % MAX_SIZE, rdm_val<typename _vector::value_type>()); //fill constructor
 	y = _vector(x.begin(), x.end()); // range constructor
-	_vector	z(std::rand() % MAX_SIZE, rdm_val<typename _vector::value_type>());
+	_vector	z(std::rand() % MAX_SIZE, rdm_val<typename _vector::value_type>()); //fill constructor
 	test_print(x, test_file);
 	test_print(y, test_file);
 	test_print(z, test_file);
@@ -310,14 +374,9 @@ void	test_constructors(_vector& x, _vector&y, std::ofstream& test_file)
 	test_print(z, test_file);
 }
 
-// #include <string>
-// #include <iostream>
-// #include <fstream>
-
 template <class _vector>
 void	test_vector(int seed, std::ofstream& test_file)
 {
-	std::cout << "getting here" << std::endl;
 	std::srand(seed);
 	void (*test_vector_func[VECTOR_TESTS])(_vector &, _vector &, std::ofstream&) =
 	{
@@ -332,6 +391,8 @@ void	test_vector(int seed, std::ofstream& test_file)
 		&test_resize,
 		&test_swap,
 		&test_clear,
+		&test_at_and_data,
+		&test_reserve,
 	};
 
 	_vector	vec_x; //default constructor
@@ -344,11 +405,11 @@ void	test_vector(int seed, std::ofstream& test_file)
 		test_file << "Vector test: " << test_counter << std::endl;
 		switch (std::rand() % VECTOR_TESTS)
 		{
-		case BASIC_TEST:
+		case CONSTRUCTOR_TEST:
 			if (std::rand() % 2)
-				test_vector_func[BASIC_TEST](vec_x, vec_y, test_file);
+				test_vector_func[CONSTRUCTOR_TEST](vec_x, vec_y, test_file);
 			else
-				test_vector_func[BASIC_TEST](vec_y, vec_x, test_file);
+				test_vector_func[CONSTRUCTOR_TEST](vec_y, vec_x, test_file);
 			break;
 		case ASSIGN_OPERATOR_TEST:
 			if (std::rand() % 2)
@@ -409,6 +470,18 @@ void	test_vector(int seed, std::ofstream& test_file)
 				test_vector_func[CLEAR_TEST](vec_x, vec_y, test_file);
 			else
 				test_vector_func[CLEAR_TEST](vec_y, vec_x, test_file);
+			break;
+		case AT_DATA_TEST:
+			if (std::rand() % 2)
+				test_vector_func[AT_DATA_TEST](vec_x, vec_y, test_file);
+			else
+				test_vector_func[AT_DATA_TEST](vec_y, vec_x, test_file);
+			break;
+		case RESERVE_TEST:
+			if (std::rand() % 2)
+				test_vector_func[RESERVE_TEST](vec_x, vec_y, test_file);
+			else
+				test_vector_func[RESERVE_TEST](vec_y, vec_x, test_file);
 			break;
 		}
 		test_print(vec_x, test_file);

@@ -74,7 +74,7 @@ namespace ft
 		template<class InputIt, class OutputIt>
 		OutputIt copy_erase (InputIt first, InputIt last, OutputIt result)
 		{
-			while (first!=last)
+			while (first != last)
 			{
 				*result = *first;
 				result++;
@@ -102,7 +102,8 @@ namespace ft
 			_size = count;
 			_alloc_size = count;
 			_alloc = alloc;
-			_array = _alloc.allocate(count);
+			if (count)
+				_array = _alloc.allocate(count);
 			for (size_type i = 0; i < count; i++)
 				_alloc.construct(_array + i, value);
 		}
@@ -112,7 +113,8 @@ namespace ft
 			typename ft::enable_if<!ft::is_integral<InputIt>::value, bool>::type = true) // range 
 		{
 			size_type	diff = last - first;
-			_array = _alloc.allocate(diff);
+			if (diff)
+				_array = _alloc.allocate(diff);
 			for (size_type i = 0; i < diff; i++)
 			{
 				_alloc.construct(_array + i, *first);
@@ -144,16 +146,22 @@ namespace ft
 		{
 			size_type	diff = distance(first, last);
 			clear();
-			increaseAllocSize(diff);
-			while (first != last)
-				push_back(*first++);
+			if (diff)
+			{
+				increaseAllocSize(diff);
+				while (first != last)
+					push_back(*first++);
+			}
 		}
 		void 					assign(size_type count, const T& value) 
 		{
 			clear();
-			increaseAllocSize(count);
-			for (size_t i = 0; i < count; i++)
-				push_back(value);
+			if (count)
+			{
+				increaseAllocSize(count);
+				for (size_t i = 0; i < count; i++)
+					push_back(value);
+			}
 		}
 		allocator_type			get_allocator() const {return _alloc;} 
 		vector& 				operator=(const vector& other) 
@@ -202,8 +210,8 @@ namespace ft
 		// Iterators
 		iterator				begin() _NOEXCEPT {return iterator(&_array[0]);}
 		const_iterator			begin() const _NOEXCEPT {return const_iterator(&_array[0]);}
-		iterator				end() _NOEXCEPT {return iterator(&_array[_size]);}
-		const_iterator			end() const _NOEXCEPT {return const_iterator(&_array[_size]);}
+		iterator				end() _NOEXCEPT {return iterator(_array + _size);}
+		const_iterator			end() const _NOEXCEPT {return const_iterator(_array + _size);}
 		reverse_iterator		rbegin() _NOEXCEPT {return reverse_iterator(end());}
 		const_reverse_iterator	rbegin() const _NOEXCEPT {return const_reverse_iterator(end());}
 		reverse_iterator		rend() _NOEXCEPT {return reverse_iterator(begin());}
@@ -230,12 +238,15 @@ namespace ft
 		iterator				insert(iterator pos, const T& value)
 		{
 			vector		tmp;
+			vector		tmp2;
 			size_type	index_pos = pos - begin();
 			size_type	end_elem = end() - pos;
 
 			tmp.assign(pos, end());
-			_size = index_pos;
-			push_back(value);
+			tmp2.assign(begin(), pos);
+			tmp2.push_back(value);
+			clear();
+			assign(tmp2.begin(), tmp2.end());
 			for (size_type i = 0; i < end_elem; i++)
 				push_back(tmp[i]);
 			return (begin() + index_pos); 
@@ -258,24 +269,30 @@ namespace ft
 		{
 			iterator p_pos = pos;
 
-			if (pos + 1 == end())
-				_alloc.destroy(&(*pos));
+			if (pos == end())
+				pop_back();
 			else
 			{
-				for (int i = 0; i < end() - pos - 1; i++)
+				_alloc.destroy(&*pos);
+				for (iterator it = pos; it != end() - 1; it++)
 				{
-					size_type j = pos - begin();
-					_alloc.construct(&_array[j + i], _array[j + i + 1]);
-					_alloc.destroy(&_array[j + i + 1]);
+					_alloc.construct(&*it, *(it + 1));
+					_alloc.destroy(&*(it + 1));
 				}
+				_size--;
 			}
-			_size--;
 			return (p_pos);
 		}
 		iterator				erase(iterator first, iterator last)
 		{
-			copy_erase(last, end(), first);
-			_size -= last - first;
+			// size_type	result = _size - (last - first);
+			// std::cout << "size before: " << _size << std::endl;
+			// std::cout << "last - first: " << last - first << std::endl;
+			for(iterator it = first; it != last; it++)
+				erase(first);
+			// std::cout << "size after: " << _size << std::endl;
+			// if (_size != result)
+			// 	std::cout << "someting wrong" << std::endl;
 			return first;
 		}
 		void					push_back(const T& value)

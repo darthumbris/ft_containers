@@ -5,26 +5,6 @@
 
 # define KEY	512
 
-template <typename _vector>
-void	test_print(const _vector& p, std::ofstream& test_file)
-{
-	test_file << "empty: " << p.empty() << std::endl;
-	test_file << "size: " << p.size() << std::endl;
-	test_file << "capacity: " << p.capacity() << std::endl;
-	test_file << "max_size: " << p.max_size() << std::endl;
-	if (!p.empty())
-	{
-		test_file << "content: " << std::endl;
-		for (typename _vector::const_iterator it = p.begin(); it != p.end(); it++)
-			test_file << *it << std::endl;
-		test_file << "reverse: " << std::endl;
-		for (typename _vector::const_reverse_iterator it = p.rbegin(); it != p.rend(); it++)
-			test_file << *it << std::endl;
-		test_file << "front(): " << p.front() << std::endl;
-		test_file << "back(): " << p.back() << std::endl;
-	}
-}
-
 template <typename T>
 class _const_test {
 	public:

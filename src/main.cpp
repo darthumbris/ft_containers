@@ -1,7 +1,31 @@
 #include "test_header.hpp"
 #include "test_vector.cpp"
+#include "test_map.cpp"
 
 //TODO make a script which will launch all the tests and make diff files
+
+class Timer
+{
+public:
+
+	typedef std::chrono::high_resolution_clock		clock;
+	typedef std::chrono::microseconds				us;
+
+	Timer() {_start_time = clock::now();}
+	~Timer() {}
+
+	void stop()
+	{
+		std::chrono::time_point<clock>	end_time = clock::now();
+		long long start = std::chrono::time_point_cast<us>(_start_time).time_since_epoch().count();
+		long long end = std::chrono::time_point_cast<us>(end_time).time_since_epoch().count();
+		double ms = (end - start) * 0.001;
+		std::cout << "time: " <<  ms << "ms" << std::endl;
+	}
+
+private:
+	std::chrono::time_point<clock> _start_time;
+};
 
 enum	containers
 {
@@ -38,6 +62,8 @@ int main(int argc, char** argv)
 
 	std::ofstream	test_file(output, std::ios_base::trunc);
 
+	Timer timer;
+
 	int	current_seed = seed;
 	for (int i = 0; i < MAX_SEED; i++)
 	{
@@ -49,9 +75,9 @@ int main(int argc, char** argv)
 			else
 				test_vector<ft::vector<int> >(current_seed, test_file);
 			break;
-		// case MAP:
-		// 	test_map(current_seed, test_file);
-		// 	break;
+		case MAP:
+			test_map<ft::map<int, std::string> >(current_seed, test_file);
+			break;
 		// case STACK:
 		// 	test_stack(current_seed, test_file);
 		// 	break;
@@ -64,6 +90,7 @@ int main(int argc, char** argv)
 		}
 		current_seed++;
 	}
-	system ("leaks ft_containers");
+	timer.stop();
+	// system ("leaks ft_containers");
 	return 0;
 }

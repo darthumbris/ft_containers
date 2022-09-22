@@ -1,9 +1,9 @@
 #include "test_random_value.hpp"
 
 
-# define VECTOR_TESTS 13
-# define MAX_TESTS	128
-# define MAX_SIZE	64
+#define VECTOR_TESTS	13
+#define MAX_TESTS		128
+#define MAX_SIZE		64
 
 static int	vector_test = 0;
 
@@ -20,6 +20,26 @@ static int	vector_test = 0;
 #define CLEAR_TEST 10
 #define AT_DATA_TEST 11
 #define RESERVE_TEST 12
+
+template <typename _vector>
+void	test_print(const _vector& p, std::ofstream& test_file)
+{
+	test_file << "empty: " << p.empty() << std::endl;
+	test_file << "size: " << p.size() << std::endl;
+	test_file << "capacity: " << p.capacity() << std::endl;
+	test_file << "max_size: " << p.max_size() << std::endl;
+	if (!p.empty())
+	{
+		test_file << "content: " << std::endl;
+		for (typename _vector::const_iterator it = p.begin(); it != p.end(); it++)
+			test_file << *it << std::endl;
+		test_file << "reverse: " << std::endl;
+		for (typename _vector::const_reverse_iterator it = p.rbegin(); it != p.rend(); it++)
+			test_file << *it << std::endl;
+		test_file << "front(): " << p.front() << std::endl;
+		test_file << "back(): " << p.back() << std::endl;
+	}
+}
 
 template <typename _vector>
 void	test_at_and_data(_vector& x, _vector&y, std::ofstream& test_file)

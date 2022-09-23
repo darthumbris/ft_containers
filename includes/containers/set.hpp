@@ -44,20 +44,19 @@ namespace ft
 	public: // Member Functions
 
 		explicit set(const key_compare& comp = key_compare(), const Allocator& alloc = Allocator())
-			: _tree(alloc, comp), _alloc(alloc), _cmp(comp) {}
+			: _tree(alloc, comp), _alloc(alloc), _cmp(comp) {} //default 
 		
 		template <class InputIt>
 		set(InputIt first, InputIt last, const Compare& comp = Compare(), const Allocator& alloc = Allocator(),
 			typename ft::enable_if<!ft::is_integral<InputIt>::value, bool>::type = true)
-			: _tree(alloc, comp), _alloc(alloc), _cmp(comp) {insert(first, last);}
+			: _tree(alloc, comp), _alloc(alloc), _cmp(comp) {insert(first, last);} //range
 
-		set(const set& other) : _tree(other._alloc, value_compare(other._cmp)) {*this = other;}
+		set(const set& other) : _tree(other._alloc, value_compare(other._cmp)) {*this = other;} //copy
 
 		~set() {_tree.clear();}
 
 		set&	operator=(const set& other)
 		{
-			_tree = other._tree;
 			_cmp = other._cmp;
 			_tree.clear();
 			insert(other.begin(), other.end());
@@ -66,7 +65,7 @@ namespace ft
 
 		allocator_type			get_allocator() const {return _alloc;}
 
-		void					printSetTree() {_tree.printTree();}
+		// void					printSetTree() {_tree.printTree();}
 
 		// iterators
 		iterator				begin() {return iterator(_tree.findSmallest(), &_tree);}
@@ -81,7 +80,7 @@ namespace ft
 		// Capacity
 		bool					empty() const {return (_tree.size() == 0);}
 		size_type				size() const {return _tree.size();}
-		size_type				max_size() const {return _tree.max_size();}
+		size_type				max_size() const {return (_alloc.max_size()) / 8;} // this was needed to make it the same as std
 
 		// Modifiers
 		void						clear() {_tree.clear();}
@@ -99,11 +98,16 @@ namespace ft
 			for (InputIt it = first; it != last; it++)
 				insert(*it);
 		}
-		void					erase(iterator pos) {erase(*pos);}
+		void					erase(iterator pos) {_tree.erase(*pos);}
 		void					erase(iterator first, iterator last)
 		{
-			for (iterator it = first; it != last; it++)
-				_tree.erase(*it);
+			for (iterator it = first; it != last;)
+			{
+				iterator temp = it;
+				temp++;
+				erase(*it);
+				it = temp;
+			}
 		}
 		size_type				erase(const Key& key)
 		{

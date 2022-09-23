@@ -253,11 +253,14 @@ void test_erase_map(_map &x, _map &y, std::ofstream& test_file)
 			break ;
 		case 2 :
 			test_file << "erase test 2 x.erase(iterator first, iterator last) : " << std::endl;
-			if (x.size() > MAX_MAP_TESTS)
+			test_file << "size: " << x.size() << std::endl;
+			if (!x.empty() && x.size() > 15)
 			{
 				it = x.begin();
-				for (int i = 0; i < std::rand() % MAX_MAP_TESTS; i++)
+				for (int i = 0; i < std::rand() % 15; i++)
 					it++;
+				test_file << "erasing somethingadas" << std::endl;
+				test_file << "erasing key: " << it->first << std::endl;
 				x.erase(it, x.end());
 			}
 			break ;
@@ -275,6 +278,8 @@ void test_erase_map(_map &x, _map &y, std::ofstream& test_file)
 			}
 			break;
 	}
+	test_print_map(x, test_file);
+    test_print_map(y, test_file);
 }
 
 template <typename _map>

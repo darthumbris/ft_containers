@@ -120,7 +120,7 @@ namespace ft
 		// Capacity
 		bool					empty() const {return (_tree.size() == 0);}
 		size_type				size() const {return _tree.size();}
-		size_type				max_size() const {return _alloc.max_size() / 2;} // max_size / 2 matched up with actual map values
+		size_type				max_size() const {return _alloc.max_size() / 2;} // max_size / 2 matched up with actual map
 
 		// Modifiers
 		void						clear() {_tree.clear();}
@@ -141,8 +141,13 @@ namespace ft
 		void					erase(iterator pos) _NOEXCEPT {_tree.erase(*pos);}
 		void					erase(iterator first, iterator last)
 		{
-			for (iterator it = first; it != last; it++)
+			for (iterator it = first; it != last;)
+			{
+				iterator temp = it;
+				temp++;
 				erase(it->first);
+				it = temp;
+			}
 		}
 		size_type				erase(const Key& key)
 		{

@@ -5,10 +5,10 @@ CXXFLAGS = -Wall -Werror -Wextra -pedantic -std=c++11
 
 SRC_DIR = src
 OBJ_DIR = obj
+LOG_DIR = test
 INC_DIR = includes
 
 SRC =	main.cpp \
-        
 
 SRC_EXT = cpp
 
@@ -80,7 +80,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.$(SRC_EXT) | $(OBJ_DIR)
 
 clean:
 	@printf "%b" "$(ERROR_COLOR)Removing $(OBJ_COLOR)object files\n"
-	@rm -rf $(OBJ_DIR)
+	@rm -rf $(OBJ_DIR) $(LOG_DIR)
 
 fclean:	clean
 	@printf "%b" "$(ERROR_COLOR)Removing $(PRG_COLOR)$(NAME)\n"

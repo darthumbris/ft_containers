@@ -23,16 +23,12 @@ namespace ft
 
 	public: // member functions
 
-		explicit	stack(const Container& cont = Container()) : c(cont) {}
+		explicit	stack(const Container& cont = Container()) : c(cont) {} //default
 					stack(const stack& other) {*this = other;} // copy
 
 					~stack() {}
 
-		stack& 		operator=(const stack& other)
-		{
-			c = other.c;
-			return *this;
-		}
+		stack& 		operator=(const stack& other) {c = other.c; return *this;}
 
 		// Element access
 		reference		top() {return c.back();}

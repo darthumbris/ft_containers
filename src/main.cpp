@@ -1,6 +1,8 @@
 #include "test_header.hpp"
 #include "test_vector.cpp"
 #include "test_map.cpp"
+#include "test_stack.cpp"
+#include "test_set.cpp"
 
 //TODO make a script which will launch all the tests and make diff files
 
@@ -78,12 +80,12 @@ int main(int argc, char** argv)
 		case MAP:
 			test_map<ft::map<int, std::string> >(current_seed, test_file);
 			break;
-		// case STACK:
-		// 	test_stack(current_seed, test_file);
-		// 	break;
-		// case SET:
-		// 	test_set(current_seed, test_file);
-		// 	break;
+		case STACK:
+			test_stack<ft::stack<int > >(current_seed, test_file);
+			break;
+		case SET:
+			test_set<ft::set<int> >(current_seed, test_file);
+			break;
 		default:
 			std::cerr << "container should be: vector, map, stack or set. Instead got: " << container << std::endl;
 			return 1;
@@ -91,6 +93,6 @@ int main(int argc, char** argv)
 		current_seed++;
 	}
 	timer.stop();
-	// system ("leaks ft_containers");
+	system ("leaks ft_containers");
 	return 0;
 }

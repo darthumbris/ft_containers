@@ -11,6 +11,7 @@
 	#include <vector>
 	#include <map>
 	#include <set>
+	#include <stack>
 	namespace ft = std;
 	std::string	output = "test/out_std.log";
 #else

@@ -59,8 +59,12 @@ namespace ft
 	public: //typedefs
 
 		typedef Alloc											allocator_type;
+
+	private:
+		typedef std::allocator_traits<allocator_type>			_alloc_traits;
+	public:
 		typedef	unsigned long									size_type;
-		typedef long											difference_type;
+		typedef typename _alloc_traits::difference_type			difference_type;
 		typedef T												value_type;
 		typedef typename ft::tree<T>::node						node;
 		typedef typename Alloc::template rebind<node>::other	node_allocator_type;

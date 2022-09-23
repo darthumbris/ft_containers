@@ -120,7 +120,7 @@ namespace ft
 		// Capacity
 		bool					empty() const {return (_tree.size() == 0);}
 		size_type				size() const {return _tree.size();}
-		size_type				max_size() const {return _tree.max_size();}
+		size_type				max_size() const {return _alloc.max_size() / 2;} // max_size / 2 matched up with actual map values
 
 		// Modifiers
 		void						clear() {_tree.clear();}

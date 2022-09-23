@@ -219,13 +219,11 @@ void	test_pop_back(_vector& x, _vector&y, std::ofstream& test_file)
 	test_file << " - pop_back" << std::endl;
 	switch (std::rand() % 2)
 	{
-		case (0) :
-			test_file << "pop_back case 0: popping all of x" << std::endl;
+		case 0:
 			if (!x.empty())
 				for (size_t i = 0; i < x.size(); i++)
 					x.pop_back();
-		case (1) :
-			test_file << "pop_back case 1: popping all of y" << std::endl;
+		case 1:
 			if (!y.empty())
 				for (size_t i = 0; i < y.size(); i++)
 					y.pop_back();

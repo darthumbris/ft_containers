@@ -253,6 +253,11 @@ namespace ft
 		}
 		void					insert(iterator pos, size_type count, const T& value)
 		{
+			if (_size == 0 && count > _alloc_size && count < _alloc_size * 2)
+			{
+				increaseAllocSize(_alloc_size * 2); // this was because otherwise the capacity was not correct
+				pos = begin(); //if _size == 0 pos can only be begin()
+			}
 			for (size_type i = 0; i < count; i++)
 			{
 				pos = insert(pos, value);
@@ -285,14 +290,8 @@ namespace ft
 		}
 		iterator				erase(iterator first, iterator last)
 		{
-			// size_type	result = _size - (last - first);
-			// std::cout << "size before: " << _size << std::endl;
-			// std::cout << "last - first: " << last - first << std::endl;
 			for(iterator it = first; it != last; it++)
 				erase(first);
-			// std::cout << "size after: " << _size << std::endl;
-			// if (_size != result)
-			// 	std::cout << "someting wrong" << std::endl;
 			return first;
 		}
 		void					push_back(const T& value)

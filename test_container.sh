@@ -1,5 +1,11 @@
 #! /bin/bash
 
+yellow="\033[33m"
+green="\033[32m"
+red="\033[31m"
+blue="\033[34m"
+reset="\033[0m"
+
 # **************************************************************************** #
 #                                                                              #
 #                                                         ::::::::             #
@@ -12,34 +18,33 @@
 #                                                                              #
 # **************************************************************************** #
 
-# Seed can be changed to test with other random values
+# Seed can be changed for the std::srand(seed)
 seed=42
 
-yellow="\033[33m"
-green="\033[32m"
-red="\033[31m"
-blue="\033[34m"
-reset="\033[0m"
-
+#This function will make a test for the ft version and then std version and then compare the outputs
+#If a test fails (so there is a difference between files) it will exit
 container_test_function(){
     container=$1
-
     {
     make fclean; 
     make STD_MODE=0 -j4;
     } &> /dev/null
+    mkdir -p -v test;
     echo -e "${yellow} Test - FT_${container} ${reset}";
     ./ft_containers $seed $container;
     echo -e "${blue} [Done] ${reset}";
-
+    mkdir -p -v "result/${container}"
+    cp "test/out_ft.log" "result/${container}"
     {
         make fclean;
         make STD_MODE=1 -j4;
     } &> /dev/null
+    mkdir -p -v test;
     echo -e "${yellow} Test - STD_${container} ${reset}";
     ./ft_containers $seed $container;
+    cp "test/out_std.log" "result/${container}"
     echo -e "${blue} [Done] ${reset}";
-    diff -u test/out_ft.log test/out_std.log > test/diff.log;
+    diff -u result/${container}/out_ft.log result/${container}/out_std.log > "result/${container}/diff.log";
     if [ -s test/diff.log ]; then
         echo -e "${red} Diff found check test/diff.log ${reset}";
         exit 1
@@ -48,12 +53,13 @@ container_test_function(){
     fi
 }
 
-echo "making test directory for putting output of test";
-mkdir -p -v test;
-
+#if you want to test a single test comment out the other ones
 container_test_function "vector"
 container_test_function "map"
 container_test_function "stack"
 container_test_function "set"
 
 echo -e "${green} all test passed! ${reset}";
+
+make fclean &> /dev/null
+rm -rf "result";

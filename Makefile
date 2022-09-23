@@ -80,7 +80,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.$(SRC_EXT) | $(OBJ_DIR)
 
 clean:
 	@printf "%b" "$(ERROR_COLOR)Removing $(OBJ_COLOR)object files\n"
-	@rm -rf $(OBJ_DIR)
+	@rm -rf $(OBJ_DIR) $(LOG_DIR)
 
 fclean:	clean
 	@printf "%b" "$(ERROR_COLOR)Removing $(PRG_COLOR)$(NAME)\n"

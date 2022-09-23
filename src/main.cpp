@@ -92,7 +92,7 @@ int main(int argc, char** argv)
 		}
 		current_seed++;
 	}
-	timer.stop();
-	system ("leaks ft_containers");
+	// timer.stop();
+	// system ("leaks ft_containers");
 	return 0;
 }

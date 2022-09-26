@@ -231,6 +231,12 @@ void test_swap_map(_map &x, _map &y, std::ofstream& test_file)
 		test_file << "Check iterator validity" << std::endl;
 		test_file << "valid : " << (it_x == y.begin()) << std::endl;
 		test_file << "valid : " << (it_y == x.end()) << std::endl;
+		it_x = x.begin();
+		it_y = y.begin();
+		std::swap(x, y);
+		test_file << "Check iterator validity" << std::endl;
+		test_file << "valid : " << (it_x == y.begin()) << std::endl;
+		test_file << "valid : " << (it_y == x.end()) << std::endl;
 	}
 }
 

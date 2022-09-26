@@ -119,12 +119,7 @@ namespace ft
 		void					swap(set& other)
 		{
 			_tree.swap(other._tree);
-			key_compare	temp_comp = _cmp;
-			_cmp = other._cmp;
-			other._cmp = temp_comp;
-			allocator_type	temp_alloc = _alloc;
-			_alloc = other._alloc;
-			other._alloc = temp_alloc;
+			std::swap(_cmp, other._cmp);
 		}
 
 		// Lookup
@@ -192,7 +187,12 @@ namespace ft
 	template<class Key, class Compare, class Alloc>
 	bool	operator>=(const set<Key,Compare,Alloc>& lhs, const set<Key,Compare,Alloc>& rhs) {return (!(lhs < rhs));}
 
-	template<class Key, class Compare, class Alloc>
-	void	swap(set<Key,Compare,Alloc>& lhs, set<Key,Compare,Alloc>& rhs) {lhs.swap(rhs);}
 }
+
+namespace std
+{
+	template<class Key, class Compare, class Alloc>
+	void	swap(ft::set<Key,Compare,Alloc>& lhs, ft::set<Key,Compare,Alloc>& rhs) {lhs.swap(rhs);}
+}
+
 #endif

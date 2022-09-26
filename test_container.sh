@@ -19,7 +19,7 @@ reset="\033[0m"
 # **************************************************************************** #
 
 # Seed can be changed for the std::srand(seed)
-seed=42
+seed=312443
 
 #This function will make a test for the ft version and then std version and then compare the outputs
 #If a test fails (so there is a difference between files) it will exit
@@ -29,20 +29,20 @@ container_test_function(){
     make fclean; 
     make STD_MODE=0 -j4;
     } &> /dev/null
-    mkdir -p -v test;
+    mkdir -p -v "test/${container}"
     echo -e "${yellow} Test - FT_${container} ${reset}";
     ./ft_containers $seed $container;
     echo -e "${blue} [Done] ${reset}";
     mkdir -p -v "result/${container}"
-    cp "test/out_ft.log" "result/${container}"
+    cp "test/${container}/out_ft.log" "result/${container}"
     {
         make fclean;
         make STD_MODE=1 -j4;
     } &> /dev/null
-    mkdir -p -v test;
+    mkdir -p -v "test/${container}";
     echo -e "${yellow} Test - STD_${container} ${reset}";
     ./ft_containers $seed $container;
-    cp "test/out_std.log" "result/${container}"
+    cp "test/${container}/out_std.log" "result/${container}"
     echo -e "${blue} [Done] ${reset}";
     diff -u result/${container}/out_ft.log result/${container}/out_std.log > "result/${container}/diff.log";
     if [ -s test/diff.log ]; then

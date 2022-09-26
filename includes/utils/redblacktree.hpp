@@ -1,6 +1,8 @@
 #ifndef REDBLACKTREE_HPP
 # define REDBLACKTREE_HPP
 
+#include <algorithm>
+
 /*
  * notes: 
  * - https://www.codesdope.com/course/data-structures-red-black-trees-insertion/
@@ -93,6 +95,7 @@ namespace ft
 
 		redblacktree&	operator=(const redblacktree& other)
 		{
+			_root = other._root;
 			_alloc = other._alloc;
 			_node_alloc = other._node_alloc;
 			_size = other._size;
@@ -116,22 +119,25 @@ namespace ft
 		void	erase(const value_type& value) {eraseNode(value, _root);} //erase single node in tree
 		void	swap(redblacktree& tree)
 		{
-			node*				temp_root = _root;
-			size_type			temp_size = _size;
-			Compare 			temp_comp = _comp;
-			allocator_type		temp_alloc= _alloc;
-			node_allocator_type	temp_node_alloc = _node_alloc;
+			// node*				temp_root = _root;
+			// size_type			temp_size = _size;
+			// Compare 			temp_comp = _comp;
+			// allocator_type		temp_alloc= _alloc;
+			// node_allocator_type	temp_node_alloc = _node_alloc;
 
-			_root = tree._root;
-			tree._root = temp_root;
-			_size = tree._size;
-			tree._size = temp_size;
-			_comp = tree._comp;
-			tree._comp = temp_comp;
-			_alloc = tree._alloc;
-			tree._alloc = temp_alloc;
-			_node_alloc = tree._node_alloc;
-			tree._node_alloc = temp_node_alloc;
+			// _root = tree._root;
+			// tree._root = temp_root;
+			// _size = tree._size;
+			// tree._size = temp_size;
+			// _comp = tree._comp;
+			// tree._comp = temp_comp;
+			// _alloc = tree._alloc;
+			// tree._alloc = temp_alloc;
+			// _node_alloc = tree._node_alloc;
+			// tree._node_alloc = temp_node_alloc;
+			std::swap(_root, tree._root);
+			std::swap(_size, tree._size);
+			std::swap(_comp, tree._comp);
 		}
 
 		// Lookup

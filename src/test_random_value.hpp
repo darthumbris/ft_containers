@@ -100,7 +100,7 @@ std::string rdm_val<std::string>()
 		"STILL ALIVE",
 		"STILL ALIVE"
     };
-    return (std::string(default_val[std::rand() % 40]));
+    return (std::string(default_val[std::rand() % 20]));
 }
 
 template <>

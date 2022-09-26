@@ -44,7 +44,7 @@ namespace ft
 
 		iterator				operator+(const int& n) const {iterator copy(*this); copy._ptr += n; return copy;}
 		friend iterator			operator+(const int& n, const iterator& a) {return a + n;}
-		iterator				operator-(const int& n) const {iterator copy(*this); copy._ptr -= n; return copy;}
+		iterator				operator-(const int& n) const {return (iterator(_ptr - n));}
 		friend difference_type	operator-(const iterator& a, const iterator& b) {return a.base() - b.base();}
 
 		iterator&	operator++(void) {_ptr++; return *this;}

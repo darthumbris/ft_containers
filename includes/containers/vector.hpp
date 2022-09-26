@@ -71,18 +71,6 @@ namespace ft
 			_array = temp;
 		}
 
-		template<class InputIt, class OutputIt>
-		OutputIt copy_erase (InputIt first, InputIt last, OutputIt result)
-		{
-			while (first != last)
-			{
-				*result = *first;
-				result++;
-				first++;
-			}
-			return result;
-		}
-
 		template<class InputIt>
 		size_type	distance(InputIt& first, InputIt& last)
 		{
@@ -98,34 +86,26 @@ namespace ft
 						: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0) {} 
 
 		explicit	vector(size_type count, const T& value = T(), const Allocator& alloc = Allocator()) // fill
+			: _array(NULL), _alloc(alloc), _alloc_size(count), _size(0)
 		{
-			_size = count;
-			_alloc_size = count;
-			_alloc = alloc;
 			if (count)
 				_array = _alloc.allocate(count);
 			for (size_type i = 0; i < count; i++)
-				_alloc.construct(_array + i, value);
+				push_back(value);
 		}
 
 		template <class InputIt>
 		vector(InputIt first, InputIt last, const Allocator& alloc = Allocator(),
 			typename ft::enable_if<!ft::is_integral<InputIt>::value, bool>::type = true) // range 
+				: _array(NULL), _alloc(alloc), _alloc_size(distance(first, last)), _size(0)
 		{
-			size_type	diff = last - first;
-			if (diff)
-				_array = _alloc.allocate(diff);
-			for (size_type i = 0; i < diff; i++)
-			{
-				_alloc.construct(_array + i, *first);
-				first++;
-			}
-			_size = diff;
-			_alloc_size = diff;
-			_alloc = alloc;
+			if (_alloc_size)
+				_array = _alloc.allocate(_alloc_size);
+			for (size_type i = 0; i < _alloc_size; i++)
+				push_back(*first++);
 		}
 
-		vector(const vector& other)// copy 
+		vector(const vector& other)// copy
 		{
 			_size = 0;
 			_alloc_size = 0;
@@ -134,8 +114,7 @@ namespace ft
 		
 		~vector() 
 		{
-			for(size_type i = 0; i < _size; i++)
-				_alloc.destroy(_array + i);
+			clear();
 			if (_alloc_size)
 				_alloc.deallocate(_array, _alloc_size);
 		}
@@ -148,7 +127,7 @@ namespace ft
 			clear();
 			if (diff)
 			{
-				increaseAllocSize(diff);
+				reserve(diff);
 				while (first != last)
 					push_back(*first++);
 			}
@@ -158,7 +137,7 @@ namespace ft
 			clear();
 			if (count)
 			{
-				increaseAllocSize(count);
+				reserve(count);
 				for (size_t i = 0; i < count; i++)
 					push_back(value);
 			}
@@ -172,10 +151,7 @@ namespace ft
 				if (_alloc_size)
 					_alloc.deallocate(_array, _alloc_size);
 				_size = other._size;
-				// if (_size == 0)
-					_alloc_size = _size;
-				// else
-					// _alloc_size = other._alloc_size;
+				_alloc_size = _size;
 				_alloc = other._alloc;
 				if (_alloc_size)
 					_array = _alloc.allocate(other._alloc_size);
@@ -229,11 +205,21 @@ namespace ft
 		typename ft::enable_if<!ft::is_integral<InputIt>::value,void>::type
 								insert(iterator pos, InputIt first, InputIt last)
 		{
-			for (iterator it = first; it != last; it++)
-			{
-				pos = insert(pos, *it);
-				pos++;
-			}
+			size_type	diff = distance(first, last);
+			vector		tmp;
+			vector		tmp2;
+			size_type	end_elem = end() - pos;
+
+			tmp.assign(pos, end());
+			tmp2.assign(begin(), pos);
+			for (size_type i = 0; i < diff; i++)
+				tmp2.push_back(*first++);
+			clear();
+			if (diff > _alloc_size && diff < _alloc_size * 2)
+				reserve(_alloc_size * 2);
+			assign(tmp2.begin(), tmp2.end());
+			for (size_type i = 0; i < end_elem; i++)
+				push_back(tmp[i]);
 		}
 		iterator				insert(iterator pos, const T& value)
 		{
@@ -253,22 +239,25 @@ namespace ft
 		}
 		void					insert(iterator pos, size_type count, const T& value)
 		{
-			if (_size == 0 && count > _alloc_size && count < _alloc_size * 2)
-			{
-				increaseAllocSize(_alloc_size * 2); // this was because otherwise the capacity was not correct
-				pos = begin(); //if _size == 0 pos can only be begin()
-			}
+			vector		tmp;
+			vector		tmp2;
+			size_type	end_elem = end() - pos;
+
+			tmp.assign(pos, end());
+			tmp2.assign(begin(), pos);
 			for (size_type i = 0; i < count; i++)
-			{
-				pos = insert(pos, value);
-				pos++;
-			}
+				tmp2.push_back(value);
+			if (count + _size > _alloc_size && count + _size < _alloc_size * 2)
+				reserve(_alloc_size * 2);
+			clear();
+			assign(tmp2.begin(), tmp2.end());
+			for (size_type i = 0; i < end_elem; i++)
+				push_back(tmp[i]);
 		}
 		void					clear()
 		{
-			for (size_type i = 0; i < _size; i++)
-				_alloc.destroy(_array + i);
-			_size = 0;
+			while (_size)
+				pop_back();
 		}
 		iterator				erase(iterator pos)
 		{
@@ -297,9 +286,9 @@ namespace ft
 		void					push_back(const T& value)
 		{
 			if (_alloc_size == 0)
-				increaseAllocSize(1);
+				reserve(1);
 			else if (_size + 1 > _alloc_size)
-				increaseAllocSize(_alloc_size * 2);
+				reserve(_alloc_size * 2);
 			_alloc.construct(_array + _size, value);
 			_size++;
 		}
@@ -311,41 +300,28 @@ namespace ft
 				_size--;
 			}
 		}
-		void					resize(size_type count, T value = T())
+		void					resize(size_type n, T value = T())
 		{
-			if (count == 0)
+			if (n == 0)
 				clear();
-			if (count <= _size)
+			if (n <= _size)
 			{
-				for (size_type i = count; i < _size; i++)
-					_alloc.destroy(_array + i);
+				while (_size > n)
+					pop_back();
 			}
-			if (count > _size)
+			if (n > _size)
 			{
-				if (count > _alloc_size && count < _alloc_size * 2)
-					increaseAllocSize(_alloc_size * 2);
-				else
-					increaseAllocSize(count);
-				for (size_type i = _size; i < count; i++)
-					_alloc.construct(_array + i, value);
+				(n > _alloc_size && n < _alloc_size * 2) ? reserve(_alloc_size * 2) : reserve(n);
+				for (size_type i = _size; i < n; i++)
+					push_back(value);
 			}
-			_size = count;
+			_size = n;
 		}
 		void					swap(vector& other)
 		{
-			value_type*		temp_array = _array;
-			allocator_type	temp_alloc = _alloc;
-			size_type		temp_alloc_size = _alloc_size;
-			size_type		temp_size = _size;
-
-			_array = other._array;
-			_alloc = other._alloc;
-			_alloc_size = other._alloc_size;
-			_size = other._size;
-			other._array = temp_array;
-			other._alloc = temp_alloc;
-			other._alloc_size = temp_alloc_size;
-			other._size = temp_size;
+			std::swap(_size, other._size);
+			std::swap(_alloc_size, other._alloc_size);
+			std::swap(_array, other._array);
 		}
 	};
 
@@ -370,7 +346,12 @@ namespace ft
 	template <class T, class Alloc>
 	bool	operator>=(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {return (!(lhs < rhs));}
 
-	template <class T, class Alloc>
-	void	swap(vector<T, Alloc>& lhs, vector<T,Alloc>& rhs) {lhs.swap(rhs);}
 };
+
+namespace std
+{
+	template <class T, class Alloc>
+	void	swap(ft::vector<T, Alloc>& lhs, ft::vector<T,Alloc>& rhs) {lhs.swap(rhs);}
+}
+
 #endif

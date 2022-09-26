@@ -121,6 +121,10 @@ void	test_swap(_vector& x, _vector&y, std::ofstream& test_file)
 {
 	test_file << "Test: " << vector_test++;
 	test_file << " - swap" << std::endl;
+	test_file << "x: " << std::endl;
+	test_print(x, test_file);
+	test_file << "y: " << std::endl;
+	test_print(y, test_file);
 	if (std::rand() % 2)
 	{
 		test_file << "x.swap(y):" << std::endl;
@@ -131,6 +135,17 @@ void	test_swap(_vector& x, _vector&y, std::ofstream& test_file)
 		test_file << "y.swap(x):" << std::endl;
 		y.swap(x);
 	}
+	test_file << "now after x.swap or y.swap: " << std::endl;
+	test_file << "x: " << std::endl;
+	test_print(x, test_file);
+	test_file << "y: " << std::endl;
+	test_print(y, test_file);
+	test_file << "now after std::swap(x, y)" << std::endl;
+	std::swap(x, y);
+	test_file << "x: " << std::endl;
+	test_print(x, test_file);
+	test_file << "y: " << std::endl;
+	test_print(y, test_file);
 }
 
 template <typename _vector>
@@ -295,42 +310,41 @@ void	test_insert(_vector& x, _vector&y, std::ofstream& test_file)
 	if (!x.empty())
 		it = x.begin() + std::rand() % x.size();
 	else
-	{
 		it = x.end();
-		try
+	try
+	{
+		switch (std::rand() % 3)
 		{
-			switch (std::rand() % 3)
-			{
-				case 0:
-					test_file << "Insert test 0 insert(iterator pos, const T& value):" << std::endl;
+			case 0:
+				test_file << "Insert test 0 insert(iterator pos, const T& value):" << std::endl;
+				if (x.size() < MAX_SIZE * 10)
 					test_file << *x.insert(it, rdm_val<typename _vector::value_type>()) << std::endl;
-					if (!y.empty())
-						test_file << *y.insert(y.begin(), rdm_val<typename _vector::value_type>()) << std::endl;
-					break;
-				case 1:
-					test_file << "Insert test 1 insert(iterator pos, inputIt first, inputIt last):" << std::endl;
-					if (!x.empty() && !y.empty())
-						y.insert(y.begin() + (std::rand() % y.size()), it, it + (std::rand() % (x.size() - (it - x.begin()))));
-					else if (!y.empty())
-						y.insert(y.begin() + (std::rand() % y.size()), it, x.end());
-					else
-						y.insert(y.begin(), it, x.end());
-					break;
-				case 2:
-					test_file << "capacity before: " << y.capacity() << std::endl;
-					test_file << "size before: " << y.size() << std::endl;
-					test_file << "Insert test 2 insert(iterator pos, size_type count, const T& value):" << std::endl;
-					if (!y.empty())
-						y.insert(y.begin(), (std::rand() % y.size()), rdm_val<typename _vector::value_type>());
-					else
-						y.insert(y.begin(), std::rand() % 5, rdm_val<typename _vector::value_type>());
-					break;
-			}
+				if (y.size() < MAX_SIZE * 10)
+				test_file << *y.insert(y.begin(), rdm_val<typename _vector::value_type>()) << std::endl;
+				break;
+			case 1:
+				test_file << "Insert test 1 insert(iterator pos, inputIt first, inputIt last):" << std::endl;
+				if (!x.empty() && !y.empty())
+					y.insert(y.begin() + (std::rand() % y.size()), it, it + (std::rand() % (x.size() - (it - x.begin()))));
+				else if (!y.empty())
+					y.insert(y.begin() + (std::rand() % y.size()), it, x.end());
+				else if (y.size() + x.size() < MAX_SIZE * 10)
+					y.insert(y.begin(), it, x.end());
+				break;
+			case 2:
+				test_file << "capacity before: " << y.capacity() << std::endl;
+				test_file << "size before: " << y.size() << std::endl;
+				test_file << "Insert test 2 insert(iterator pos, size_type count, const T& value):" << std::endl;
+				if (!y.empty() && y.size() < MAX_SIZE * 10)
+					y.insert(y.begin(), (std::rand() % y.size()), rdm_val<typename _vector::value_type>());
+				else if (y.size() < MAX_SIZE * 10)
+					y.insert(y.begin(), std::rand() % 5, rdm_val<typename _vector::value_type>());
+				break;
 		}
-		catch(const std::exception& e)
-		{
-			std::cerr << e.what() << std::endl;
-		}
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
 	}
 }
 
@@ -501,6 +515,12 @@ void	test_vector(int seed, std::ofstream& test_file)
 			else
 				test_vector_func[RESERVE_TEST](vec_y, vec_x, test_file);
 			break;
+		// default:
+		// 	// if (std::rand() % 2)
+		// 		test_vector_func[INSERT_TEST](vec_x, vec_y, test_file);
+		// 	// else
+		// 		// test_vector_func[INSERT_TEST](vec_y, vec_x, test_file);
+		// 	break;
 		}
 		test_print(vec_x, test_file);
 		test_print(vec_y, test_file);

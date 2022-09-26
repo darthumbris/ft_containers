@@ -62,7 +62,8 @@ int main(int argc, char** argv)
 	const int	seed = atoi(argv[1]);
 	std::string	container = argv[2];
 
-	std::ofstream	test_file(output, std::ios_base::trunc);
+	std::string output_file = "test/" + container +  "/" + output;
+	std::ofstream	test_file(output_file, std::ios_base::trunc);
 
 	Timer timer;
 
@@ -93,6 +94,6 @@ int main(int argc, char** argv)
 		current_seed++;
 	}
 	// timer.stop();
-	// system ("leaks ft_containers");
+	// system ("leaks -q ft_containers");
 	return 0;
 }

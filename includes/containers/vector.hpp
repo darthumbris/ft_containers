@@ -86,10 +86,9 @@ namespace ft
 						: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0) {} 
 
 		explicit	vector(size_type count, const T& value = T(), const Allocator& alloc = Allocator()) // fill
-			: _array(NULL), _alloc(alloc), _alloc_size(count), _size(0)
+			: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0)
 		{
-			if (count)
-				_array = _alloc.allocate(count);
+			reserve(count);
 			for (size_type i = 0; i < count; i++)
 				push_back(value);
 		}
@@ -97,19 +96,19 @@ namespace ft
 		template <class InputIt>
 		vector(InputIt first, InputIt last, const Allocator& alloc = Allocator(),
 			typename ft::enable_if<!ft::is_integral<InputIt>::value, bool>::type = true) // range 
-				: _array(NULL), _alloc(alloc), _alloc_size(distance(first, last)), _size(0)
+				: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0)
 		{
-			if (_alloc_size)
-				_array = _alloc.allocate(_alloc_size);
+			reserve(distance(first, last));
 			for (size_type i = 0; i < _alloc_size; i++)
 				push_back(*first++);
 		}
 
 		vector(const vector& other)// copy
+			: _array(NULL), _alloc(other._alloc), _alloc_size(other._size), _size(0)
 		{
-			_size = 0;
-			_alloc_size = 0;
-			*this = other;
+			_array = _alloc.allocate(other._size);
+			for (size_type i = 0; i < other._size; i++)
+				push_back(other._array[i]);
 		}
 		
 		~vector() 
@@ -151,10 +150,11 @@ namespace ft
 				if (_alloc_size)
 					_alloc.deallocate(_array, _alloc_size);
 				_size = other._size;
-				_alloc_size = _size;
+				if (_alloc_size == 0 || _alloc_size < other._alloc_size)
+					_alloc_size = other._alloc_size;
 				_alloc = other._alloc;
 				if (_alloc_size)
-					_array = _alloc.allocate(other._alloc_size);
+					_array = _alloc.allocate(_alloc_size);
 				for (size_type i = 0; i < _size; i++)
 					_alloc.construct(_array + i, other._array[i]);
 			}

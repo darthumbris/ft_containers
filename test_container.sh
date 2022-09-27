@@ -30,10 +30,10 @@ container_test_function(){
     make STD_MODE=0 -j4;
     } &> /dev/null
     mkdir -p -v "test/${container}"
-    echo -e "${yellow} Test - FT_${container} ${reset}";
-    ./ft_containers $seed $container;
-    echo -e "${blue} [Done] ${reset}";
     mkdir -p -v "result/${container}"
+    echo -e "${yellow} Test - FT_${container} ${reset}";
+    ./ft_containers $seed $container > "result/${container}/time_ft.out";
+    echo -e "${blue} [Done] ${reset}";
     cp "test/${container}/out_ft.log" "result/${container}"
     {
         make fclean;
@@ -41,12 +41,12 @@ container_test_function(){
     } &> /dev/null
     mkdir -p -v "test/${container}";
     echo -e "${yellow} Test - STD_${container} ${reset}";
-    ./ft_containers $seed $container;
+    ./ft_containers $seed $container > "result/${container}/time_std.out";
     cp "test/${container}/out_std.log" "result/${container}"
     echo -e "${blue} [Done] ${reset}";
     diff -u result/${container}/out_ft.log result/${container}/out_std.log > "result/${container}/diff.log";
-    if [ -s test/diff.log ]; then
-        echo -e "${red} Diff found check test/diff.log ${reset}";
+    if [ -s result/${container}/diff.log ]; then
+        echo -e "${red} Diff found check result/${container}/diff.log ${reset}";
         exit 1
     else
         echo -e "${green} no diff found ${reset}";
@@ -62,4 +62,4 @@ container_test_function "set"
 echo -e "${green} all test passed! ${reset}";
 
 make fclean &> /dev/null
-rm -rf "result";
+# rm -rf "result";

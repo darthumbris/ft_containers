@@ -392,13 +392,22 @@ void	test_constructors(_vector& x, _vector&y, std::ofstream& test_file)
 {
 	test_file << "Test: " << vector_test++;
 	test_file << " (Constructor)" << std::endl;
+	test_file << "capacity x before: " << x.capacity() << std::endl;
+	test_file << "capacity y before: " << y.capacity() << std::endl;
 	x = _vector(std::rand() % MAX_SIZE, rdm_val<typename _vector::value_type>()); //fill constructor
 	y = _vector(x.begin(), x.end()); // range constructor
 	_vector	z(std::rand() % MAX_SIZE, rdm_val<typename _vector::value_type>()); //fill constructor
+	test_file << "x: " << std::endl;
 	test_print(x, test_file);
+	test_file << "y: " << std::endl;
 	test_print(y, test_file);
+	test_file << "z: " << std::endl;
 	test_print(z, test_file);
 	test_file << "Copy Constructor" << std::endl;
+	test_file << "capacity x: " << x.capacity() << std::endl;
+	test_file << "size x: " << x.size() << std::endl;
+	test_file << "capacity y: " << y.capacity() << std::endl;
+	test_file << "size y: " << y.size() << std::endl;
 	_vector	u(x); //copy constructor
 	_vector	w(y); // copy constructor
 	test_print(u, test_file);

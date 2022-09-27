@@ -65,8 +65,6 @@ namespace ft
 
 		allocator_type			get_allocator() const {return _alloc;}
 
-		// void					printSetTree() {_tree.printTree();}
-
 		// iterators
 		iterator				begin() {return iterator(_tree.findSmallest(), &_tree);}
 		const_iterator			begin() const {return const_iterator(_tree.findSmallest(), &_tree);}
@@ -80,7 +78,7 @@ namespace ft
 		// Capacity
 		bool					empty() const {return (_tree.size() == 0);}
 		size_type				size() const {return _tree.size();}
-		size_type				max_size() const {return (_alloc.max_size()) / 8;} // this was needed to make it the same as std
+		size_type				max_size() const {return (_tree.max_size());}
 
 		// Modifiers
 		void						clear() {_tree.clear();}
@@ -137,7 +135,7 @@ namespace ft
 
 			while (node != NULL)
 			{
-				if (!_cmp(*node->data, key))
+				if (!_cmp(node->data, key))
 				{
 					temp = node;
 					node = node->left;

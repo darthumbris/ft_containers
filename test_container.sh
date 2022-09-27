@@ -19,7 +19,7 @@ reset="\033[0m"
 # **************************************************************************** #
 
 # Seed can be changed for the std::srand(seed)
-seed=312443
+seed=42
 
 #This function will make a test for the ft version and then std version and then compare the outputs
 #If a test fails (so there is a difference between files) it will exit

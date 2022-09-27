@@ -26,9 +26,9 @@ namespace ft
 	struct node
 	{
 		// Constructor for node, default colour is RED and NIL leaves are also set
-		node(node* parent) : colour(RED), parent(parent), left(NULL), right(NULL) {}
+		node(node* parent, value_type data) : data(data), colour(RED), parent(parent), left(NULL), right(NULL) {}
 
-		value_type* data;
+		value_type	data;
 		colour		colour;
 		node*		parent;
 		node*		left;
@@ -83,22 +83,20 @@ namespace ft
 	private: //variables
 
 		node*				_root; //root of the tree
-		allocator_type		_alloc; //alloc for the data of the nodes
-		node_allocator_type	_node_alloc; //alloc for the nodes itself
+		node_allocator_type	_alloc; //alloc for the nodes
 		size_type			_size; //size of the tree
 		Compare				_comp; //Compare class used to compare values
 
 	public: // public Member functions
 
 		redblacktree(Alloc alloc, Compare compare) : _root(NULL), _alloc(alloc), _size(0), _comp(compare) {}
-		redblacktree() : _root(NULL), _alloc(), _size(0), _comp() {}
+		redblacktree() : _root(NULL),  _size(0), _comp() {}
 		~redblacktree() {}
 
 		redblacktree&	operator=(const redblacktree& other)
 		{
 			_root = other._root;
 			_alloc = other._alloc;
-			_node_alloc = other._node_alloc;
 			_size = other._size;
 			_comp = other._comp;
 			return *this;
@@ -107,10 +105,10 @@ namespace ft
 		
 		// Capacity
 		size_type	size() const {return _size;}
-		size_type	max_size() const {return std::min<size_type>(_node_alloc.max_size(), std::numeric_limits<difference_type>::max());}
+		size_type	max_size() const {return std::min<size_type>(_alloc.max_size(), std::numeric_limits<difference_type>::max());}
 
 		// Modifiers
-		bool	insert(value_type value) {return insertLeaf(_root, value);}
+		bool	insert(const value_type& value) {return insertLeaf(_root, value);}
 		void	clear() //eraseTree
 		{
 			eraseTree(_root);
@@ -136,39 +134,37 @@ namespace ft
 	private: //private member functions
 
 		// Insertions
-		node*	newLeaf(node* parent, value_type& value)
+		node*	newLeaf(node* parent, const value_type& value)
 		{
-			node*	new_node = _node_alloc.allocate(1);
-			_node_alloc.construct(new_node, node(parent));
-			new_node->data = _alloc.allocate(1);
-			_alloc.construct(new_node->data, value);
+			node*	new_node = _alloc.allocate(1);
+			_alloc.construct(new_node, node(parent, value));
 			_size++;
 			return new_node;
 		}
 
-		bool	newAndFix(node** new_node, node* parent, value_type& value)
+		bool	newAndFix(node*& new_node, node* parent, const value_type& value)
 		{
-			if (*new_node == NULL)
+			if (new_node == NULL)
 			{
-				*new_node = newLeaf(parent, value);
-				fixViolationInsert(*new_node);
+				new_node = newLeaf(parent, value);
+				fixViolationInsert(new_node);
 			}
 			else
-				return insertLeaf(*new_node, value);
+				return insertLeaf(new_node, value);
 			return true;
 		}
 
-		bool	insertLeaf(node* current, value_type& value)
+		bool	insertLeaf(node* current, const value_type& value)
 		{
 			if (_root == NULL) //case 0 for inserting nodes
 			{
 				_root = newLeaf(NULL, value);
 				_root->colour = BLACK;
 			}
-			else if (_comp(value, *(current->data))) //smaller than node
-				return newAndFix(&current->left, current, value);
-			else if (_comp(*(current->data), value)) // bigger than node
-				return newAndFix(&current->right, current, value);
+			else if (_comp(value, (current->data))) //smaller than node
+				return newAndFix(current->left, current, value);
+			else if (_comp((current->data), value)) // bigger than node
+				return newAndFix(current->right, current, value);
 			else
 				return false; // failed to insert new node
 			return true;
@@ -183,35 +179,33 @@ namespace ft
 			node*	remov = findNode(root, value);
 			if (remov != NULL)
 				eraseMatch(remov->parent, remov);
-			else
-				return;
 		}
 
-		bool	eraseForTwoChildren(node** remov, node** node_move_up, node **nil_node, colour* deleted_colour)
+		bool	eraseForTwoChildren(node*& remov, node*& node_move_up, node*& nil_node, colour& deleted_colour)
 		{
-			node*	smallest = findSmallest((*remov)->right);
+			node*	smallest = findSmallest(remov->right);
 			bool	is_nill = false;
 
 			if (smallest->right)
-				*node_move_up = smallest->right;
+				node_move_up = smallest->right;
 			else
 			{
 				is_nill = true;
 				value_type	nil_data = value_type(); //because it requires a reference
-				*nil_node = newLeaf(NULL, nil_data);
-				(*nil_node)->colour = BLACK;
-				updateParentChild(smallest->parent, smallest, *nil_node);
-				*node_move_up = *nil_node;
+				nil_node = newLeaf(NULL, nil_data);
+				nil_node->colour = BLACK;
+				updateParentChild(smallest->parent, smallest, nil_node);
+				node_move_up = nil_node;
 			}
-			if (smallest->parent == *remov)
+			if (smallest->parent == remov)
 			{
-				updateParentChild((*remov)->parent, *remov, smallest);
-				smallest->left = (*remov)->left;
-				(*remov)->left->parent = smallest;
+				updateParentChild(remov->parent, remov, smallest);
+				smallest->left = remov->left;
+				remov->left->parent = smallest;
 				if (!smallest->right)
 				{
-					smallest->right = *nil_node;
-					(*nil_node)->parent = smallest;
+					smallest->right = nil_node;
+					nil_node->parent = smallest;
 				}
 			}
 			else
@@ -221,15 +215,15 @@ namespace ft
 					smallest->right->parent = smallest->parent;
 					smallest->parent->left = smallest->right;
 				}
-				updateParentChild((*remov)->parent, *remov, smallest);
-				smallest->left = (*remov)->left;
-				(*remov)->left->parent = smallest;
-				smallest->right = (*remov)->right;
-				(*remov)->right->parent = smallest;
+				updateParentChild(remov->parent, remov, smallest);
+				smallest->left = remov->left;
+				remov->left->parent = smallest;
+				smallest->right = remov->right;
+				remov->right->parent = smallest;
 			}
-			*deleted_colour = smallest->colour;
-			smallest->colour = (*remov)->colour;
-			removeNode(*remov);
+			deleted_colour = smallest->colour;
+			smallest->colour = remov->colour;
+			removeNode(remov);
 			return is_nill;
 		}
 
@@ -240,7 +234,7 @@ namespace ft
 		* the inorder predecessor R always has at most one child. This reduces this deletion to case 0.
 		*/
 		// This erases the node found in the eraseNode function
-		void	eraseMatch(node *parent, node *remov)
+		void	eraseMatch(node* parent, node* remov)
 		{
 			node*	node_move_up = remov;
 			colour	deleted_colour = remov->colour;
@@ -263,7 +257,7 @@ namespace ft
 				removeNode(remov);
 			}
 			else // 2 children
-				is_nill = eraseForTwoChildren(&remov, &node_move_up, &nil_node, &deleted_colour);
+				is_nill = eraseForTwoChildren(remov, node_move_up, nil_node, deleted_colour);
 			if (deleted_colour == BLACK)
 				fixViolationErase(node_move_up);
 			if (is_nill)
@@ -274,12 +268,10 @@ namespace ft
 		}
 
 		// This actually deallocates the node
-		void	removeNode(node *remov)
+		void	removeNode(node* remov)
 		{
-			_alloc.destroy(remov->data);
-			_alloc.deallocate(remov->data, 1);
-			_node_alloc.destroy(remov);
-			_node_alloc.deallocate(remov, 1);
+			_alloc.destroy(remov);
+			_alloc.deallocate(remov, 1);
 			_size--;
 		}
 
@@ -292,10 +284,8 @@ namespace ft
 					eraseTree(root->left);
 				if (root->right != NULL)
 					eraseTree(root->right);
-				_alloc.destroy(root->data);
-				_alloc.deallocate(root->data, 1);
-				_node_alloc.destroy(root);
-				_node_alloc.deallocate(root, 1);
+				_alloc.destroy(root);
+				_alloc.deallocate(root, 1);
 			}
 		}
 
@@ -314,28 +304,28 @@ namespace ft
 				new_child->parent = parent;
 		}
 
-		void	fixViolationInsertBlackUncle(node **root, node** original_parent, node** original_grandparent)
+		void	fixViolationInsertBlackUncle(node*& root, node*& original_parent, node*& original_grandparent)
 		{
-			if ((*original_parent) == (*original_grandparent)->left)
+			if (original_parent == original_grandparent->left)
 			{
-				if (*root == (*original_parent)->right)
+				if (root == original_parent->right)
 				{
-					rotateLeft(*original_parent); //case 2 triangle
-					(*original_parent) = *root; //case 2 triangle
+					rotateLeft(original_parent); //case 2 triangle
+					original_parent = root; //case 2 triangle
 				}
-				rotateRight(*original_grandparent); //case 3 line
+				rotateRight(original_grandparent); //case 3 line
 			}
 			else
 			{
-				if (*root == (*original_parent)->left) 
+				if (root == original_parent->left) 
 				{
-					rotateRight(*original_parent); //case 2 triangle
-					*original_parent = *root;		//case 2 triangle
+					rotateRight(original_parent); //case 2 triangle
+					original_parent = root;		//case 2 triangle
 				}
-				rotateLeft(*original_grandparent); //case 3 line
+				rotateLeft(original_grandparent); //case 3 line
 			}
-			(*original_parent)->colour = BLACK; //case 3 line
-			(*original_grandparent)->colour = RED; //case 3 line
+			original_parent->colour = BLACK; //case 3 line
+			original_grandparent->colour = RED; //case 3 line
 		}
 
 		/*After inserting recolour and rotate tree to fix violations
@@ -365,41 +355,41 @@ namespace ft
 				fixViolationInsert(original_grand_parent);
 			}
 			else // case 2 and 3
-				fixViolationInsertBlackUncle(&root, &original_parent, &original_grand_parent);
+				fixViolationInsertBlackUncle(root, original_parent, original_grand_parent);
 		}
 
-		void	rotateAndRecolour(node** node_rotate, rotate_dir rotate_dir, node** child)
+		void	rotateAndRecolour(node*& node_rotate, rotate_dir rotate_dir, node*& child)
 		{
-			(*child)->colour = BLACK;
+			child->colour = BLACK;
 			if (rotate_dir == RIGHT)
-				rotateRight(*node_rotate);
+				rotateRight(node_rotate);
 			else
-				rotateLeft(*node_rotate);
+				rotateLeft(node_rotate);
 		}
 
 		//Fixing Violation for erase case 0 sibling is black and has red child
-		void	fixViolationEraseRedChild(node **moved, node** sibling)
+		void	fixViolationEraseRedChild(node*& moved, node*& sibling)
 		{
-			bool	node_left = (*moved == (*moved)->parent->left);
-			if (node_left && isNilorBlack((*sibling)->right))
+			bool	node_left = (moved == moved->parent->left);
+			if (node_left && isNilorBlack(sibling->right))
 			{
-				(*sibling)->colour = RED;
-				rotateAndRecolour(sibling, RIGHT, &((*sibling)->left));
-				*sibling = (*moved)->parent->right;
+				sibling->colour = RED;
+				rotateAndRecolour(sibling, RIGHT, sibling->left);
+				sibling = moved->parent->right;
 			}
-			else if (!node_left && isNilorBlack((*sibling)->left))
+			else if (!node_left && isNilorBlack(sibling->left))
 			{
-				(*sibling)->colour = RED;
-				rotateAndRecolour(sibling, LEFT, &((*sibling)->right));
-				*sibling = (*moved)->parent->left;
+				sibling->colour = RED;
+				rotateAndRecolour(sibling, LEFT, sibling->right);
+				sibling = moved->parent->left;
 			}
 
-			(*sibling)->colour = (*moved)->parent->colour;
-			(*moved)->parent->colour = BLACK;
+			sibling->colour = moved->parent->colour;
+			moved->parent->colour = BLACK;
 			if (node_left)
-				rotateAndRecolour(&((*moved)->parent), LEFT, &((*sibling)->right));
+				rotateAndRecolour(moved->parent, LEFT, sibling->right);
 			else
-				rotateAndRecolour(&((*moved)->parent), RIGHT, &((*sibling)->left));
+				rotateAndRecolour(moved->parent, RIGHT, sibling->left);
 		}
 
 		//TODO clean this up
@@ -437,7 +427,7 @@ namespace ft
 					fixViolationErase(moved->parent); //case 2
 			}
 			else //sibling has red child case 0
-				fixViolationEraseRedChild(&moved, &sibling);
+				fixViolationEraseRedChild(moved, sibling);
 		}
 
 		void	rotateLeft(node* root)
@@ -472,9 +462,9 @@ namespace ft
 		{
 			if (root != NULL)
 			{
-				if (isEqual(*(root->data), value))
+				if (isEqual((root->data), value))
 					return root;
-				else if (_comp(value, *(root->data)))
+				else if (_comp(value, (root->data)))
 					return findNode(root->left, value);
 				else
 					return findNode(root->right, value);
@@ -540,32 +530,6 @@ namespace ft
 
 		bool	isNilorBlack(node* root) {return (root == NULL || root->colour == BLACK);}
 
-		// void	printNodes(node* parent, int space)
-		// {
-		// 	if (parent != NULL)
-		// 	{
-		// 		space = space + 10;
-		// 		printNodes(parent->right, space);
-		// 		std::cout << std::endl;
-		// 		for (int i = 0; i < space; i++)
-		// 			std::cout << " ";
-		// 		if (parent == _root)
-		// 			std::cout << "R]";
-		// 		if (parent->colour == RED)
-		// 			std::cout << "\033[31m" << *parent->data << "\033[0m" << std::endl;
-		// 		else
-		// 			std::cout << "\033[37m" << *parent->data << "\033[0m" << std::endl;
-		// 		printNodes(parent->left, space);
-		// 	}
-		// 	else
-		// 	{
-		// 		space = space + 10;
-		// 		std::cout << std::endl;
-		// 		for (int i = 0; i < space; i++)
-		// 			std::cout << " ";
-		// 		std::cout << "\033[34m" << "NIL" << "\033[0m" << std::endl;
-		// 	}
-		// }
 	};
 }
 #endif

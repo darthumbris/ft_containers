@@ -97,14 +97,14 @@ namespace ft
 			node_* child = _tree.find(ft::make_pair(key, mapped_type()));
 			if (child == NULL)
 				throw out_of_range("map::at:  key not found");
-			return child->data->second;
+			return child->data.second;
 		}
 		const T&		at(const Key& key) const {return (at(key));}
 		T&				operator[](const Key& key)
 		{
 			value_type	value = ft::make_pair(key, mapped_type());
 			_tree.insert(value);
-			return _tree.find(value)->data->second;
+			return _tree.find(value)->data.second;
 		}
 
 		// iterators
@@ -120,7 +120,7 @@ namespace ft
 		// Capacity
 		bool					empty() const {return (_tree.size() == 0);}
 		size_type				size() const {return _tree.size();}
-		size_type				max_size() const {return _alloc.max_size() / 2;} // max_size / 2 matched up with actual map
+		size_type				max_size() const {return _tree.max_size();}
 
 		// Modifiers
 		void						clear() {_tree.clear();}
@@ -176,7 +176,7 @@ namespace ft
 
 			while (node != NULL)
 			{
-				if (!_cmp(node->data->first, key))
+				if (!_cmp(node->data.first, key))
 				{
 					temp = node;
 					node = node->left;

@@ -20,8 +20,14 @@ namespace ft
 	public: // Member functions
 
 		reverse_iterator() : _iter() {}
-		explicit	reverse_iterator(iterator_type it) : _iter(it) {}
-		template <class Iterator>	reverse_iterator(const reverse_iterator<Iterator>& rev_it) {_iter = rev_it.base();}
+
+		explicit
+		reverse_iterator(iterator_type it) : _iter(it) {}
+
+		template <class Iterator>
+		reverse_iterator(const reverse_iterator<Iterator>& rev_it) {_iter = rev_it.base();}
+
+
 		~reverse_iterator() {}
 
 		iterator_type 		base() const {return _iter;}

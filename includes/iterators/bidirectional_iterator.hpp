@@ -100,11 +100,11 @@ namespace ft
 		}
 		bidirectional_iterator	operator--(int) {bidirectional_iterator	copy(*this); --(*this); return copy;}
 
-		reference				operator*() const {return *_ptr->data;}
-		reference				operator*() {return *_ptr->data;}
+		reference				operator*() const {return _ptr->data;}
+		reference				operator*() {return _ptr->data;}
 
-		pointer					operator->() const {return _ptr->data;}
-		pointer					operator->() {return _ptr->data;}
+		pointer					operator->() const {return &_ptr->data;}
+		pointer					operator->() {return &_ptr->data;}
 	};
 }
 #endif

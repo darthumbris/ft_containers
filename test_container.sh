@@ -19,7 +19,7 @@ reset="\033[0m"
 # **************************************************************************** #
 
 # Seed can be changed for the std::srand(seed)
-seed=42
+seed=54325
 
 #This function will make a test for the ft version and then std version and then compare the outputs
 #If a test fails (so there is a difference between files) it will exit
@@ -32,7 +32,7 @@ container_test_function(){
     mkdir -p -v "test/${container}"
     mkdir -p -v "result/${container}"
     echo -e "${yellow} Test - FT_${container} ${reset}";
-    ./ft_containers $seed $container > "result/${container}/time_ft.out";
+    ./ft_containers $seed $container >> "result/${container}/time_ft.out";
     echo -e "${blue} [Done] ${reset}";
     cp "test/${container}/out_ft.log" "result/${container}"
     {
@@ -41,7 +41,7 @@ container_test_function(){
     } &> /dev/null
     mkdir -p -v "test/${container}";
     echo -e "${yellow} Test - STD_${container} ${reset}";
-    ./ft_containers $seed $container > "result/${container}/time_std.out";
+    ./ft_containers $seed $container >> "result/${container}/time_std.out";
     cp "test/${container}/out_std.log" "result/${container}"
     echo -e "${blue} [Done] ${reset}";
     diff -u result/${container}/out_ft.log result/${container}/out_std.log > "result/${container}/diff.log";
@@ -54,12 +54,23 @@ container_test_function(){
 }
 
 #if you want to test a single test comment out the other ones
-container_test_function "vector"
-container_test_function "map"
-container_test_function "stack"
-container_test_function "set"
+#if you want to only test once set the value in the for loop to 1
+
+container_test_all(){
+
+    container_test_function "vector"
+    container_test_function "map"
+    container_test_function "stack"
+    container_test_function "set"
+}
+
+for i in {1..5}
+do
+    container_test_all
+done
 
 echo -e "${green} all test passed! ${reset}";
 
 make fclean &> /dev/null
-# rm -rf "result";
+#comment out following line to check out the outputs (time outputs, diff etc)
+rm -rf "result";

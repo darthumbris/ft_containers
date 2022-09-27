@@ -22,7 +22,7 @@ public:
 		long long start = std::chrono::time_point_cast<us>(_start_time).time_since_epoch().count();
 		long long end = std::chrono::time_point_cast<us>(end_time).time_since_epoch().count();
 		double ms = (end - start) * 0.001;
-		std::cout << "time: " <<  ms << "ms" << std::endl;
+		std::cout << ms << std::endl;
 	}
 
 private:
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 		}
 		current_seed++;
 	}
-	timer.stop();
+	// timer.stop();
 	// system ("leaks -q ft_containers");
 	return 0;
 }

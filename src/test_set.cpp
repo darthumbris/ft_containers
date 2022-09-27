@@ -61,9 +61,8 @@ void test_count_set(_set &x, _set &y, std::ofstream& test_file)
 	_set a(y);
 	for (int i = 0; i < SET_KEY; i++)
 	{
-		test_file << i ;
 		if (a.count(i) > 0)
-			test_file << " is in map" << std::endl;
+			test_file << i << " is in set" << std::endl;
 	}
 }
 

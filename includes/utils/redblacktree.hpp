@@ -2,6 +2,7 @@
 # define REDBLACKTREE_HPP
 
 #include <algorithm>
+// #include <memory> included in algorithm
 
 /*
  * notes: 
@@ -119,22 +120,6 @@ namespace ft
 		void	erase(const value_type& value) {eraseNode(value, _root);} //erase single node in tree
 		void	swap(redblacktree& tree)
 		{
-			// node*				temp_root = _root;
-			// size_type			temp_size = _size;
-			// Compare 			temp_comp = _comp;
-			// allocator_type		temp_alloc= _alloc;
-			// node_allocator_type	temp_node_alloc = _node_alloc;
-
-			// _root = tree._root;
-			// tree._root = temp_root;
-			// _size = tree._size;
-			// tree._size = temp_size;
-			// _comp = tree._comp;
-			// tree._comp = temp_comp;
-			// _alloc = tree._alloc;
-			// tree._alloc = temp_alloc;
-			// _node_alloc = tree._node_alloc;
-			// tree._node_alloc = temp_node_alloc;
 			std::swap(_root, tree._root);
 			std::swap(_size, tree._size);
 			std::swap(_comp, tree._comp);
@@ -146,7 +131,7 @@ namespace ft
 		node*	findSmallest() const {return findSmallest(_root);}
 
 		//Visualizer for checking the redblacktree
-		void	printTree() {printNodes(_root, -10);}
+		// void	printTree() {printNodes(_root, -10);}
 
 	private: //private member functions
 
@@ -191,29 +176,15 @@ namespace ft
 
 		// Deletions
 		// Function for erasing a node in the tree
-		void	eraseNode(const value_type& value, node* node)
+		void	eraseNode(const value_type& value, node* root)
 		{
 			if (_root == NULL)
 				return ;
-			if (isEqual(value, *(node->data)))
-				eraseMatch(NULL, _root);
+			node*	remov = findNode(root, value);
+			if (remov != NULL)
+				eraseMatch(remov->parent, remov);
 			else
-			{
-				if (_comp(*(node->data), value) && node->right != NULL)
-				{
-					if (isEqual(*(node->right->data), value))
-						eraseMatch(node, node->right);
-					else
-						eraseNode(value, node->right);
-				}
-				else if (_comp(value, *(node->data)) && node->left != NULL)
-				{
-					if (isEqual(*(node->left->data), value))
-						eraseMatch(node, node->left);
-					else
-						eraseNode(value, node->left);
-				}
-			}
+				return;
 		}
 
 		bool	eraseForTwoChildren(node** remov, node** node_move_up, node **nil_node, colour* deleted_colour)
@@ -569,32 +540,32 @@ namespace ft
 
 		bool	isNilorBlack(node* root) {return (root == NULL || root->colour == BLACK);}
 
-		void	printNodes(node* parent, int space)
-		{
-			if (parent != NULL)
-			{
-				space = space + 10;
-				printNodes(parent->right, space);
-				std::cout << std::endl;
-				for (int i = 0; i < space; i++)
-					std::cout << " ";
-				if (parent == _root)
-					std::cout << "R]";
-				if (parent->colour == RED)
-					std::cout << "\033[31m" << *parent->data << "\033[0m" << std::endl;
-				else
-					std::cout << "\033[37m" << *parent->data << "\033[0m" << std::endl;
-				printNodes(parent->left, space);
-			}
-			else
-			{
-				space = space + 10;
-				std::cout << std::endl;
-				for (int i = 0; i < space; i++)
-					std::cout << " ";
-				std::cout << "\033[34m" << "NIL" << "\033[0m" << std::endl;
-			}
-		}
+		// void	printNodes(node* parent, int space)
+		// {
+		// 	if (parent != NULL)
+		// 	{
+		// 		space = space + 10;
+		// 		printNodes(parent->right, space);
+		// 		std::cout << std::endl;
+		// 		for (int i = 0; i < space; i++)
+		// 			std::cout << " ";
+		// 		if (parent == _root)
+		// 			std::cout << "R]";
+		// 		if (parent->colour == RED)
+		// 			std::cout << "\033[31m" << *parent->data << "\033[0m" << std::endl;
+		// 		else
+		// 			std::cout << "\033[37m" << *parent->data << "\033[0m" << std::endl;
+		// 		printNodes(parent->left, space);
+		// 	}
+		// 	else
+		// 	{
+		// 		space = space + 10;
+		// 		std::cout << std::endl;
+		// 		for (int i = 0; i < space; i++)
+		// 			std::cout << " ";
+		// 		std::cout << "\033[34m" << "NIL" << "\033[0m" << std::endl;
+		// 	}
+		// }
 	};
 }
 #endif

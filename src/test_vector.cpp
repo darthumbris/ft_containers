@@ -128,12 +128,12 @@ void	test_swap(_vector& x, _vector&y, std::ofstream& test_file)
 	if (std::rand() % 2)
 	{
 		test_file << "x.swap(y):" << std::endl;
-		x.swap(y);
+		// x.swap(y);
 	}
 	else
 	{
 		test_file << "y.swap(x):" << std::endl;
-		y.swap(x);
+		// y.swap(x);
 	}
 	test_file << "now after x.swap or y.swap: " << std::endl;
 	test_file << "x: " << std::endl;
@@ -141,7 +141,7 @@ void	test_swap(_vector& x, _vector&y, std::ofstream& test_file)
 	test_file << "y: " << std::endl;
 	test_print(y, test_file);
 	test_file << "now after std::swap(x, y)" << std::endl;
-	std::swap(x, y);
+	// std::swap(x, y);
 	test_file << "x: " << std::endl;
 	test_print(x, test_file);
 	test_file << "y: " << std::endl;
@@ -214,13 +214,16 @@ void	test_erase(_vector& x, _vector&y, std::ofstream& test_file)
 			if (!x.empty() && x.size() > 1)
 			{   
 				pos = x.begin() + (std::rand() % x.size());
+				test_file << "erasing from: " << pos - x.begin() << std::endl;
 				x.erase(x.begin(), pos);
 			}
+			break;
 		case (3) :
 			test_file << "erase case 3 erase(iteror first, iterator last) y.erase(y.begin(), rand() pos):" << std::endl;
 			if (!y.empty() && y.size() > 1)
 			{
 				pos = y.begin() + (std::rand() % y.size());
+				test_file << "erasing from: " << pos - y.begin() << std::endl;
 				y.erase(y.begin(), pos);
 			}
 			break ;
@@ -298,6 +301,7 @@ void	test_assign(_vector& x, _vector&y, std::ofstream& test_file)
 		if (!a.empty())
 			x.assign(a.begin(), a.end() - (std::rand() % a.size()));
 	}
+	test_file << "a.max_size: " << a.max_size() << std::endl;
 	test_print(a, test_file);
 }
 
@@ -324,6 +328,8 @@ void	test_insert(_vector& x, _vector&y, std::ofstream& test_file)
 				break;
 			case 1:
 				test_file << "Insert test 1 insert(iterator pos, inputIt first, inputIt last):" << std::endl;
+				test_file << "capacity x: " << x.capacity() << " y capac: " << y.capacity() << std::endl;
+				test_file << "size x: " << x.size() << " y size: " << y.size() << std::endl;
 				if (!x.empty() && !y.empty())
 					y.insert(y.begin() + (std::rand() % y.size()), it, it + (std::rand() % (x.size() - (it - x.begin()))));
 				else if (!y.empty())
@@ -524,12 +530,12 @@ void	test_vector(int seed, std::ofstream& test_file)
 			else
 				test_vector_func[RESERVE_TEST](vec_y, vec_x, test_file);
 			break;
-		// default:
-		// 	// if (std::rand() % 2)
-		// 		test_vector_func[INSERT_TEST](vec_x, vec_y, test_file);
-		// 	// else
-		// 		// test_vector_func[INSERT_TEST](vec_y, vec_x, test_file);
-		// 	break;
+		default:
+			// if (std::rand() % 2)
+			// 	test_vector_func[INSERT_TEST](vec_x, vec_y, test_file);
+			// else
+			// 	test_vector_func[INSERT_TEST](vec_y, vec_x, test_file);
+			break;
 		}
 		test_print(vec_x, test_file);
 		test_print(vec_y, test_file);

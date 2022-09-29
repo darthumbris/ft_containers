@@ -171,20 +171,31 @@ namespace ft
 		ft::pair<const_iterator,const_iterator>	equal_range(const Key& k) const {return make_pair(lower_bound(k), upper_bound(k));}
 		iterator								lower_bound(const Key& key)
 		{
-			node_*	node = _tree.root();
-			node_*	temp = node;
+			node_*	current = _tree.root();
 
-			while (node != NULL)
+			while (current != NULL)
 			{
-				if (!_cmp(node->data.first, key))
-				{
-					temp = node;
-					node = node->left;
-				}
+				if (key == current->data.first)
+					return iterator(current);
 				else
-					node = node->right;
+				{
+					if (_cmp(key, current->data.first))
+					{
+						if (current->left != NULL)
+							current = current->left;
+						else
+							return iterator(current);
+					}
+					else
+					{
+						if (current->right != NULL)
+							current = current->right;
+						else
+							return ++iterator(current);
+					}
+				}
 			}
-			return iterator(temp, &_tree);
+			return end();
 		}
 		const_iterator							lower_bound(const Key& key) const {return const_iterator(lower_bound(key));}
 		iterator								upper_bound(const Key& key)

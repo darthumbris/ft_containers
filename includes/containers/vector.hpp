@@ -29,7 +29,7 @@ namespace ft
 
 	private: // variables
 
-		value_type*												_array;
+		pointer													_array;
 		allocator_type											_alloc;
 		size_type												_alloc_size;
 		size_type												_size;
@@ -53,31 +53,42 @@ namespace ft
 			virtual const char* what() const throw() {return _msg;}
 		};
 
-		void					increaseAllocSize(size_type n)
-		{
-			if (n < _alloc_size)
-				return ;
-			if (n > max_size())
-				throw length_error("Reserver error .");
-			value_type* temp = _alloc.allocate(n);
-			for (size_type i = 0; i < _size; i++)
-			{
-				_alloc.construct(temp + i, _array[i]);
-				_alloc.destroy(_array + i);
-			}
-			if (_alloc_size)
-				_alloc.deallocate(_array, _alloc_size);
-			_alloc_size = n;
-			_array = temp;
-		}
-
 		template<class InputIt>
-		size_type	distance(InputIt& first, InputIt& last)
+		difference_type	distance(InputIt& first, InputIt& last)
 		{
-			size_type	count = 0;
+			difference_type	count = 0;
 			for (InputIt it = first; it != last; it++)
 				count++;
 			return count;
+		}
+
+		template<class InputIt>
+		typename ft::enable_if<!ft::is_integral<InputIt>::value, bool>::type
+		validate_iterator_values(InputIt first, InputIt last, size_t range) //this is used to check if InputIt can be assigned
+		{
+			value_type*	reserved_array;
+			bool		result = true;
+			size_t		i = 0;
+			size_type	size = 0;
+
+			reserved_array = _alloc.allocate(range);
+			for (;first != last; ++first, ++i)
+			{
+				try
+				{
+					_alloc.construct(reserved_array + i, *first);
+					size++;
+				}
+				catch (...)
+				{
+					result = false;
+					break;
+				}
+			}
+			for (; size > 0; size--)
+				_alloc.destroy(reserved_array + size - 1);
+			_alloc.deallocate(reserved_array, range);
+			return result;
 		}
 
 	public: //public member functions
@@ -88,9 +99,13 @@ namespace ft
 		explicit	vector(size_type count, const T& value = T(), const Allocator& alloc = Allocator()) // fill
 			: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0)
 		{
-			reserve(count);
+			if (count < 0)
+				throw out_of_range("vector");
+			_alloc_size = count;
+			_size = count;
+			_array = _alloc.allocate(count);
 			for (size_type i = 0; i < count; i++)
-				push_back(value);
+				_alloc.construct(_array + i, value);
 		}
 
 		template <class InputIt>
@@ -98,38 +113,35 @@ namespace ft
 			typename ft::enable_if<!ft::is_integral<InputIt>::value, bool>::type = true) // range 
 				: _array(NULL), _alloc(alloc), _alloc_size(0), _size(0)
 		{
-			reserve(distance(first, last));
-			for (size_type i = 0; i < _alloc_size; i++)
-				push_back(*first++);
+			_array = _alloc.allocate(_alloc_size);
+			assign(first, last);
 		}
 
 		vector(const vector& other)// copy
-			: _array(NULL), _alloc(other._alloc), _alloc_size(other._size), _size(0)
+			: _array(NULL), _alloc(other._alloc), _alloc_size(other._size), _size(other._size)
 		{
 			_array = _alloc.allocate(other._size);
-			for (size_type i = 0; i < other._size; i++)
-				push_back(other._array[i]);
+			for (size_type i = 0; i < _size; i++)
+				_alloc.construct(_array + i, other._array[i]);
 		}
 		
 		~vector() 
 		{
 			clear();
-			if (_alloc_size)
-				_alloc.deallocate(_array, _alloc_size);
+			_alloc.deallocate(_array, _alloc_size);
 		}
 
 		template <class InputIt>
 		typename ft::enable_if<!ft::is_integral<InputIt>::value,void>::type
 								assign(InputIt first, InputIt last) 
 		{
-			size_type	diff = distance(first, last);
+			difference_type	diff = distance(first, last);
+			if (diff < 0)
+				throw out_of_range("vector");
 			clear();
-			if (diff)
-			{
-				reserve(diff);
-				while (first != last)
-					push_back(*first++);
-			}
+			reserve(diff);
+			for (; first != last; ++first)
+				push_back(*first);
 		}
 		void 					assign(size_type count, const T& value) 
 		{
@@ -147,13 +159,10 @@ namespace ft
 			if (this != &other)
 			{
 				clear();
-				if (_alloc_size)
-					_alloc.deallocate(_array, _alloc_size);
+				_alloc.deallocate(_array, _alloc_size);
 				_size = other._size;
 				if (_alloc_size == 0 || _alloc_size < other._alloc_size)
 					_alloc_size = other._alloc_size;
-				_alloc = other._alloc;
-				if (_alloc_size)
 					_array = _alloc.allocate(_alloc_size);
 				for (size_type i = 0; i < _size; i++)
 					_alloc.construct(_array + i, other._array[i]);
@@ -197,26 +206,55 @@ namespace ft
 		bool					empty() const {return _size == 0;}
 		size_type				size() const {return _size;}
 		size_type				max_size() const {return std::min<size_type>(_alloc.max_size(), std::numeric_limits<difference_type>::max());}
-		void					reserve(size_type new_cap) {increaseAllocSize(new_cap);}
+		void					reserve(size_type new_cap)
+		{
+			if (new_cap > _alloc_size)
+			{
+				value_type* tmp = _alloc.allocate(new_cap);
+				for (size_t i = 0; i < _size; ++i)
+				{
+					_alloc.construct(tmp + i, _array[i]);
+					_alloc.destroy(_array + i);
+				}
+				if (_array)
+					_alloc.deallocate(_array, _alloc_size);
+				_alloc_size = new_cap;
+				_array = tmp;
+			}
+		}
 		size_type				capacity() const {return _alloc_size;}
 		
 		// Modifiers
 		template <class InputIt>
 		typename ft::enable_if<!ft::is_integral<InputIt>::value,void>::type
-								insert(iterator pos, InputIt first, InputIt last)
+								insert(iterator pos, InputIt first, InputIt last)//range
 		{
 			size_type	diff = distance(first, last);
+			if (!validate_iterator_values(first, last, diff))
+				throw std::exception();
 			vector		tmp;
 			vector		tmp2;
 			size_type	end_elem = end() - pos;
+			size_type	new_size = _size + diff;
 
 			tmp.assign(pos, end());
+			tmp2.reserve(pos - begin() + diff);
 			tmp2.assign(begin(), pos);
-			for (size_type i = 0; i < diff; i++)
-				tmp2.push_back(*first++);
+			for (InputIt it = first; it != last; it++)
+				tmp2.push_back(*it);
 			clear();
-			if (diff > _alloc_size && diff < _alloc_size * 2)
-				reserve(_alloc_size * 2);
+			if (diff > _alloc_size && new_size > _alloc_size * 2)
+				reserve(new_size);
+			else
+			{
+				size_type temp_size = _size;
+				while (temp_size != new_size)
+				{
+					if (temp_size == _alloc_size)
+						reserve(_alloc_size * 2);
+					temp_size++;
+				}
+			}
 			assign(tmp2.begin(), tmp2.end());
 			for (size_type i = 0; i < end_elem; i++)
 				push_back(tmp[i]);
@@ -237,7 +275,7 @@ namespace ft
 				push_back(tmp[i]);
 			return (begin() + index_pos); 
 		}
-		void					insert(iterator pos, size_type count, const T& value)
+		void					insert(iterator pos, size_type count, const T& value)//fill
 		{
 			vector		tmp;
 			vector		tmp2;
@@ -247,8 +285,19 @@ namespace ft
 			tmp2.assign(begin(), pos);
 			for (size_type i = 0; i < count; i++)
 				tmp2.push_back(value);
-			if (count + _size > _alloc_size && count + _size < _alloc_size * 2)
-				reserve(_alloc_size * 2);
+			if (count > _alloc_size)
+				reserve(count + _size);
+			else
+			{
+				size_type	new_size = _size + count;
+				size_type temp_size = _size;
+				while (temp_size != new_size)
+				{
+					if (temp_size == _alloc_size)
+						reserve(_alloc_size * 2);
+					temp_size++;
+				}
+			}
 			clear();
 			assign(tmp2.begin(), tmp2.end());
 			for (size_type i = 0; i < end_elem; i++)
@@ -277,18 +326,26 @@ namespace ft
 			}
 			return (p_pos);
 		}
-		iterator				erase(iterator first, iterator last)
+		iterator				erase(iterator first, iterator last)//range
 		{
-			for(iterator it = first; it != last; it++)
-				erase(first);
-			return first;
+			size_type start = first - begin();
+			size_type end = last - begin();
+			size_type offset = end - start;
+
+			_size -= offset;
+			if (offset == 0) //don't need to erase anything then
+				return _array + start;
+			for (size_type i = start; i < _size; ++i)
+			{
+				_alloc.construct(&_array[i], _array[i + offset]);
+				_alloc.destroy(&_array[i + offset]);
+			}
+			return _array + start;
 		}
 		void					push_back(const T& value)
 		{
-			if (_alloc_size == 0)
-				reserve(1);
-			else if (_size + 1 > _alloc_size)
-				reserve(_alloc_size * 2);
+			if (_size == _alloc_size)
+				(!_alloc_size) ? this->reserve(1) : this->reserve(_alloc_size * 2);
 			_alloc.construct(_array + _size, value);
 			_size++;
 		}

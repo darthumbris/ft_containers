@@ -130,20 +130,31 @@ namespace ft
 			{return ft::make_pair(lower_bound(key), upper_bound(key));}
 		iterator								lower_bound(const Key& key)
 		{
-			node_*	node = _tree.root();
-			node_*	temp = node;
+			node_*	current = _tree.root();
 
-			while (node != NULL)
+			while (current != NULL)
 			{
-				if (!_cmp(node->data, key))
-				{
-					temp = node;
-					node = node->left;
-				}
+				if (key == current->data)
+					return iterator(current);
 				else
-					node = node->right;
+				{
+					if (_cmp(key, current->data))
+					{
+						if (current->left != NULL)
+							current = current->left;
+						else
+							return iterator(current);
+					}
+					else
+					{
+						if (current->right != NULL)
+							current = current->right;
+						else
+							return ++iterator(current);
+					}
+				}
 			}
-			return iterator(temp, &_tree);
+			return end();
 		}
 		const_iterator			lower_bound(const Key& key) const {return const_iterator(lower_bound(key));}
 		iterator				upper_bound(const Key& key)

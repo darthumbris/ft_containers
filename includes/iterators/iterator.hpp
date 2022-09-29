@@ -12,6 +12,7 @@ namespace ft
 	public: // typedefs
 
 		typedef T								value_type;
+		typedef T*								iterator_type;
 		typedef Category						iterator_category;
 		typedef Distance						difference_type;
 		typedef Pointer							pointer;
@@ -58,10 +59,10 @@ namespace ft
 		reference	operator*() const {return *(_ptr);}
 		reference	operator*() {return *(_ptr);}
 
-		pointer		operator->() const {return _ptr;}
-		pointer		operator->() {return _ptr;}
+		pointer		operator->() const {return &(*_ptr);}
+		pointer		operator->() {return &(*_ptr);}
 
-		reference	operator[](difference_type index) {iterator copy(*this); copy._ptr += index; return *copy._ptr;}
+		reference	operator[](difference_type index) {*_ptr[index];}
 
 		value_type*	base() const {return _ptr;}
 	};

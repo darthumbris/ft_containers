@@ -23,7 +23,7 @@ namespace ft
 		typedef typename Allocator::pointer						pointer;
 		typedef typename Allocator::const_pointer				const_pointer;
 		typedef ft::iterator<T>									iterator;
-		typedef ft::iterator<const T, const_pointer, const_reference>	const_iterator;
+		typedef ft::iterator<T, const_pointer, const_reference>	const_iterator;
 		typedef ft::reverse_iterator<iterator>					reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 
@@ -173,14 +173,14 @@ namespace ft
 		// Element Access
 		reference 				at(size_type pos)
 		{
-			if (pos > size()) 
+			if (pos >= size()) 
 				throw(out_of_range("vector"));
 			return _array[pos];
 		}
 		const_reference			at(size_type pos) const {return at(pos);}
 		reference 				operator[](size_type pos)
 		{
-			if (pos > size()) 
+			if (pos >= size()) 
 				throw(out_of_range("vector [] index out of bounds"));
 			return _array[pos];
 		}
